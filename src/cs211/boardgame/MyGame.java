@@ -6,6 +6,8 @@ import processing.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cs211.imageprocessing.ImageProcessing;
+
 /**
  * @author rbsteinm
  *
@@ -15,6 +17,7 @@ public class MyGame extends PApplet{
 	
 	//TODO LA VITESSE N'EST PAS NULLE LORSQUE LA BALLE EST IMMOBILE, CE QUI
 	//POSE PROBLEME LORS DU CALCUL DU SCORE. A REGLER RAPIDEMENT
+	//Solution: poser un treshhold t: si v < t => v = 0
 	
 	private final static int MIN_WHEEL_VALUE = 0;
 	private final static int MAX_WHEEL_VALUE = 100;
@@ -62,6 +65,7 @@ public class MyGame extends PApplet{
 	private float rotateZ = 0.0f;
 	private float rotateSpeedXZ = 350.0f;
 	private float rotateSpeedY = PI/6;
+	private float boardRotateSpeed = 2.0f;
 	
 	private float wheelValue = 50.0f;
 	
@@ -73,8 +77,13 @@ public class MyGame extends PApplet{
 	private float score = 0;
 	private float lastScore = 0;
 	
+	private ImageProcessing imageProcessing;
+	private boolean quadDetected;
+	
 	public void setup(){
 		size(1500, 800, P3D);
+		imageProcessing = new ImageProcessing(this);
+		imageProcessing.setup();
 		cylinder.setup();
 		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
 		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
@@ -108,6 +117,8 @@ public class MyGame extends PApplet{
 		drawBottomSurface();
 		scrollbar.update();
 		scrollbar.display();
+		quadDetected = imageProcessing.draw();
+		updateAnglesFromBoard();
 	}
 	
 	public void drawGame(){
@@ -117,7 +128,14 @@ public class MyGame extends PApplet{
 			rotateX(rotateX);
 			rotateY(rotateY);
 			rotateZ(rotateZ);
+			if(quadDetected){
+				fill(0, 255, 0);
+			}
+			else{
+				fill(255, 0, 0);
+			}
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
+			noFill();
 			stroke(0);
 			for(PVector cylinderPosition: cylinders){
 				cylinder.show(cylinderPosition.x, cylinderPosition.y);
@@ -303,6 +321,15 @@ public class MyGame extends PApplet{
 		}
 	}
 	
+	public void updateAnglesFromBoard(){
+		float rx = imageProcessing.getRotations().x/boardRotateSpeed;
+		float ry = imageProcessing.getRotations().y/boardRotateSpeed;
+		rotateX = rx;
+		rotateZ = ry;
+		rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
+		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
+	}
+	
 	
 	/**
 	 * class representing a ball (sphere) and defining the way it moves
@@ -392,7 +419,9 @@ public class MyGame extends PApplet{
 		 */
 		private void display() {
 			translate(location.x, location.y, location.z);
+			fill(180, 180, 180);
 			sphere(SPHERE_RADIUS);
+			noFill();
 		}
 
 		/**

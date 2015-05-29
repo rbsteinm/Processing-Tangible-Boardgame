@@ -259,8 +259,8 @@ public class QuadGraph {
 	 */
 	public static boolean nonFlatQuad(PVector c1, PVector c2, PVector c3, PVector c4) {
 
-		// cos(60deg) ~= 0.5
-		float min_cos = 0.5f;
+		// cos(50deg) ~= 0.64
+		float min_cos = 0.6f;
 
 		PVector v21 = PVector.sub(c1, c2);
 		PVector v32 = PVector.sub(c2, c3);
