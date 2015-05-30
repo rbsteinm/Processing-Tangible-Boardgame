@@ -31,7 +31,8 @@ public class ImageProcessing{
 	private static final float DISCRETIZATION_STEPS_PHI = 0.06f;
 	private static final float DISCRETIZATION_STEPS_R = 2.5f;
 	
-	public PImage img = new PImage(640, 480);
+	private PImage img = new PImage(640, 480);
+	private PImage edgeImg;
 	private PImage houghAccImg;
 	private Capture cam;
 	
@@ -40,6 +41,9 @@ public class ImageProcessing{
 	
 	private TwoDThreeD twoDThreeD;
 	private PVector rotations = new PVector(0, 0, 0);
+	
+	private int edgeDetectionIndex = 0;
+	private final static int EDGE_DETECTION_RATE = 3;
 	
 	
 	public ImageProcessing(PApplet myPApplet){
@@ -77,12 +81,13 @@ public class ImageProcessing{
 			cam.read();
 		}
 		img = cam.get();
-		//img = myApp.loadImage("board1.jpg");
 		img.resize(img.width/2, img.height/2);
-		PImage edgeImg = getEdgeImage(img);
+		edgeImg = getEdgeImage(img);
 		myApp.image(img, 0, 0);
-		
-		lines = detectLines(edgeImg, 6);
+		if(edgeDetectionIndex == 0){
+			lines = detectLines(edgeImg, 6);
+		}
+		edgeDetectionIndex = (edgeDetectionIndex + 1) % EDGE_DETECTION_RATE;
 		QuadGraph quadGraph = new QuadGraph();
 		quadGraph.build(lines, img.width, img.height);
 		quadCycles = filterQuads(quadGraph.findCycles());
@@ -91,7 +96,6 @@ public class ImageProcessing{
 			List<PVector> intersections = sortCorners(getIntersections(finalLines));
 			if(intersections.size() == 4){
 				rotations = twoDThreeD.get3DRotations(intersections);
-				//plotLines(finalLines, edgeImg);
 				plotIntersections(intersections);
 				return true;
 			}
@@ -116,7 +120,7 @@ public class ImageProcessing{
 		//resultImg = hueFilter(img, 90, 140);
 		//resultImg = brightnessFilter(resultImg, 0, 200);
 		//resultImg = saturationFilter(resultImg, 100, 255);
-		img = HBSFilter(img, 90, 150, 60, 190, 100, 255);
+		HBSFilter(img, 60, 150, 60, 190, 100, 255);
 		img = (gaussianBlur(img, 95));
 		img = binaryThreshold(img, 30);
 		img = sobelAlgorithm(img);
@@ -131,7 +135,6 @@ public class ImageProcessing{
 	public PImage binaryThreshold(PImage image,float threshold){
 		PImage result = myApp.createImage(image.width, image.height, PApplet.RGB);
 		image.loadPixels();
-		result.loadPixels();
 		for(int i = 0; i < image.width * image.height; i++){
 				if(myApp.brightness(image.pixels[i]) > threshold){
 					result.pixels[i] = WHITE;
@@ -140,7 +143,6 @@ public class ImageProcessing{
 					result.pixels[i] = BLACK;
 				}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -151,8 +153,6 @@ public class ImageProcessing{
 	 */
 	public PImage invertedBinaryThreshold(PImage image){
 		PImage result = myApp.createImage(image.width, image.height, PApplet.RGB);
-		image.loadPixels();
-		result.loadPixels();
 		for(int i = 0; i < image.width * image.height; i++){
 			if(myApp.brightness(image.pixels[i]) < 128){
 				result.pixels[i] = WHITE;
@@ -164,7 +164,6 @@ public class ImageProcessing{
 		}
 		
 		
-		result.updatePixels();
 		
 		return result;
 	}
@@ -176,8 +175,7 @@ public class ImageProcessing{
 	 * @param upper/lower bounds
 	 * @return the given image, filtered
 	 */
-	public PImage HBSFilter(PImage img, float minH, float maxH, float minB, float maxB, float minS, float maxS){
-		img.loadPixels();
+	public void HBSFilter(PImage img, float minH, float maxH, float minB, float maxB, float minS, float maxS){
 		for(int i = 0; i < img.width*img.height; i++){
 			float hue = myApp.hue(img.pixels[i]);
 			float brightness = myApp.brightness(img.pixels[i]);
@@ -186,7 +184,6 @@ public class ImageProcessing{
 				img.pixels[i] = BLACK;
 			}
 		}
-		return img;
 	}
 	
 	/**
@@ -197,7 +194,6 @@ public class ImageProcessing{
 	 */
 	public PImage hueFilter(PImage img, float min, float max){
 		PImage result = myApp.createImage(img.width, img.height, PApplet.RGB);
-		img.loadPixels();
 		for(int i = 0; i < img.width*img.height; i++){
 			float hue = myApp.hue(img.pixels[i]);
 			if(hue >= min && hue <= max){
@@ -207,7 +203,6 @@ public class ImageProcessing{
 				result.pixels[i] = BLACK;
 			}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -219,7 +214,6 @@ public class ImageProcessing{
 	 */
 	public PImage brightnessFilter(PImage img, float min, float max){
 		PImage result = myApp.createImage(img.width, img.height, PApplet.RGB);
-		img.loadPixels();
 		for(int i = 0; i < img.width*img.height; i++){
 			float brightness = myApp.brightness(img.pixels[i]);
 			if(brightness >= min && brightness <= max){
@@ -229,7 +223,6 @@ public class ImageProcessing{
 				result.pixels[i] = BLACK;
 			}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -241,7 +234,6 @@ public class ImageProcessing{
 	 */
 	public PImage saturationFilter(PImage img, float min, float max){
 		PImage result = myApp.createImage(img.width, img.height, PApplet.RGB);
-		img.loadPixels();
 		for(int i = 0; i < img.width*img.height; i++){
 			float saturation = myApp.saturation(img.pixels[i]);
 			if(saturation >= min && saturation <= max){
@@ -251,7 +243,6 @@ public class ImageProcessing{
 				result.pixels[i] = BLACK;
 			}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -263,13 +254,11 @@ public class ImageProcessing{
 		// create a greyscale image (type: ALPHA) for output
 		PImage result = myApp.createImage(img.width, img.height, PApplet.ALPHA);
 		//loop that convolutes each pixel of the picture
-		img.loadPixels();
 		for(int x = 0; x < img.width; x++){
 			for(int y = 0; y < img.height; y++){
 				result.set(x, y, convolutePixel(x, y, img, kernel, weight));
 			}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -376,7 +365,6 @@ public class ImageProcessing{
 				}
 			}
 		}
-		result.updatePixels();
 		return result;
 	}
 	
@@ -391,7 +379,6 @@ public class ImageProcessing{
 		for (int i = 0; i < accumulator.length; i++) {
 			houghImg.pixels[i] = myApp.color(Math.min(255, accumulator[i]));
 		}
-		houghImg.updatePixels();
 		//houghImg.resize(img.width, img.height);
 		return houghImg;
 	}

@@ -90,7 +90,7 @@ public class ImageTransfTest extends PApplet {
 		//TODO remove
 		//PImage img2 = hueFilter(img, minHueScrollbar.getPos()*255, maxHueScrollbar.getPos()*255);
 		//System.out.println(minHueScrollbar.getPos()*255+", " + maxHueScrollbar.getPos()*255);
-		PImage img2 = hueFilter(img, 90, 150);
+		PImage img2 = hueFilter(img, 60, 150);
 		PImage img3 = brightnessFilter(img2, 60, 200);
 		PImage img4 = saturationFilter(img3, 100, 255);
 		PImage img5 = (gaussianBlur(img4, 95));

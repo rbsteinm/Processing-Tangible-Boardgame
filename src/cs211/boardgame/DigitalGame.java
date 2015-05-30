@@ -77,13 +77,9 @@ public class DigitalGame extends PApplet{
 	private float score = 0;
 	private float lastScore = 0;
 	
-	private ImageProcessing imageProcessing;
-	private boolean quadDetected;
 	
 	public void setup(){
 		size(1500, 800, P3D);
-		imageProcessing = new ImageProcessing(this);
-		imageProcessing.setup();
 		cylinder.setup();
 		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
 		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
@@ -117,8 +113,6 @@ public class DigitalGame extends PApplet{
 		drawBottomSurface();
 		scrollbar.update();
 		scrollbar.display();
-		quadDetected = imageProcessing.draw();
-		updateAnglesFromBoard();
 	}
 	
 	public void drawGame(){
@@ -128,12 +122,6 @@ public class DigitalGame extends PApplet{
 			rotateX(rotateX);
 			rotateY(rotateY);
 			rotateZ(rotateZ);
-			if(quadDetected){
-				fill(0, 255, 0);
-			}
-			else{
-				fill(255, 0, 0);
-			}
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
 			stroke(0);
@@ -317,33 +305,6 @@ public class DigitalGame extends PApplet{
 			boolean notOnBall = (dist(ball.location.x, ball.location.z, x, y) > SPHERE_RADIUS + CYLINDER_RADIUS);
 			if(onPlate && notOnBall){
 				cylinders.add(new PVector(x, y));
-			}
-		}
-	}
-	
-	public void updateAnglesFromBoard(){
-		float rx = imageProcessing.getRotations().x/boardRotateSpeed;
-		float ry = imageProcessing.getRotations().y/boardRotateSpeed;
-		//smoothRotateX(rx);
-		rotateX = rx;
-		rotateZ = ry;
-		rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
-		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
-	}
-	
-	/**
-	 * makes the plate rotate smoothly in order to avoid brutal movements
-	 * @throws InterruptedException 
-	 */
-	public void smoothRotateX(float newX){
-		if(newX < rotateX){
-			while(rotateX > newX){
-				rotateX += 0.005;
-			}
-		}
-		else{
-			while(rotateX < newX){
-				rotateX -= 0.005;
 			}
 		}
 	}
