@@ -112,7 +112,6 @@ public class TangibleGame extends PApplet{
 	public void audioSetup(){
 		audioContext = new Minim(this);
 		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
-		backgroundPlayer.setGain(0.05f);
 		backgroundPlayer.loop();
 	}
 	
@@ -131,8 +130,6 @@ public class TangibleGame extends PApplet{
 	}
 	
 	public void draw(){
-		//directionalLight(50, 100, 125, 0, -1, 0);
-		//ambientLight(102, 102, 102);
 		lights();
 		background(204, 229, 255);
 		drawGame();
@@ -202,9 +199,6 @@ public class TangibleGame extends PApplet{
 		//displaying ball on topView surface
 		topView.noStroke();
 		topView.fill(255, 0, 0);
-		//TODO fade away trail?
-		//topViewSurface.fill(0, 0, 255);
-		//topViewSurface.fill(255, 0, 0, 10);
 		float ballPosX = map(ball.location.x, -PLATE_WIDTH/2, PLATE_WIDTH/2, -topView.width/2, topView.width/2);
 		float ballPosZ = map(ball.location.z, -PLATE_DEPTH/2, PLATE_DEPTH/2, -topView.height/2, topView.height/2);
 		topView.ellipse(ballPosX, ballPosZ, 5, 5);
@@ -308,31 +302,6 @@ public class TangibleGame extends PApplet{
 	
 	public void keyReleased(){
 		shiftView = false;
-	}
-	
-	// updates the inclinaison of the plate when we drag it with the mouse
-	// plate does not move if mouse is dragged on data surface
-	public void mouseDragged(){
-		if(!shiftView && mouseY < height - DATA_SURFACE_HEIGHT){
-			rotateX += (pmouseY - mouseY)/rotateSpeedXZ;
-			rotateZ += (mouseX - pmouseX)/rotateSpeedXZ;
-			rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
-			rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
-			
-		}
-	}
-	
-	//Scolling the mouse wheel changes the rotation speed
-	public void mouseWheel(MouseEvent event){
-		if(!shiftView){
-			//wheelValue is contained between 0 and 100
-			wheelValue += event.getCount();
-			wheelValue = constrain(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE);
-			
-			//wheelValue is then mapped to corresponding X, Y and Z rotation speeds
-			rotateSpeedY = map(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE, 0.01f, PI/3);
-			rotateSpeedXZ = map(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE, 600.0f, 100.0f);
-		}
 	}
 	
 	//clicking on the plate in shift mode draws a cylinder on the clicked position

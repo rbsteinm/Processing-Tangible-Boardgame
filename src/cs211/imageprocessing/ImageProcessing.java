@@ -33,7 +33,6 @@ public class ImageProcessing{
 	
 	private PImage img = new PImage(640, 480);
 	private PImage edgeImg;
-	private PImage houghAccImg;
 	private Capture cam;
 	
 	private List<PVector> lines;
@@ -43,7 +42,7 @@ public class ImageProcessing{
 	private PVector rotations = new PVector(0, 0, 0);
 	
 	private int edgeDetectionIndex = 0;
-	private final static int EDGE_DETECTION_RATE = 3;
+	private final static int EDGE_DETECTION_RATE = 5;
 	
 	
 	public ImageProcessing(PApplet myPApplet){
@@ -55,8 +54,6 @@ public class ImageProcessing{
 	public void setup() {
 		twoDThreeD = new TwoDThreeD(img.width, img.height);
 		setupCamera();
-		//myPApplet.noLoop();
-		
 	}
 	
 	public void setupCamera(){
@@ -82,9 +79,9 @@ public class ImageProcessing{
 		}
 		img = cam.get();
 		img.resize(img.width/2, img.height/2);
-		edgeImg = getEdgeImage(img);
 		myApp.image(img, 0, 0);
 		if(edgeDetectionIndex == 0){
+			edgeImg = getEdgeImage(img);
 			lines = detectLines(edgeImg, 6);
 		}
 		edgeDetectionIndex = (edgeDetectionIndex + 1) % EDGE_DETECTION_RATE;
@@ -432,8 +429,6 @@ public class ImageProcessing{
 			}
 		}
 		
-		houghAccImg = getHoughAccImg(accumulator, rDim, phiDim);
-		
 		// size of the region we search for a local maximum
 		int neighbourhood = 10;
 		// only search around lines with more that this amount of votes
@@ -626,7 +621,7 @@ public class ImageProcessing{
 			PVector c23 = getIntersection(l2, l3);
 			PVector c34 = getIntersection(l3, l4);
 			PVector c41 = getIntersection(l4, l1);
-			//TODO skipped validArea checking, as asked for milestone 3
+			//skipped validArea checking, as asked for milestone 3
 			if(QuadGraph.isConvex(c12, c23, c34, c41) && QuadGraph.nonFlatQuad(c12, c23, c34, c41)){
 				remainingQuads.add(quad);
 			}
@@ -673,10 +668,8 @@ public class ImageProcessing{
 		PVector b = quad.get(2);
 		PVector center = new PVector((a.x + b.x) / 2, (a.y + b.y) / 2);
 		Collections.sort(quad, new CWComparator(center));
-		// TODO:
-		// Re-order the corners so that the first one is the closest to the
+		// Re-ordering the corners so that the first one is the closest to the
 		// origin (0,0) of the image.
-		// You can use Collections.rotate to shift the corners inside the quad.
 		while(closestToOrigin(quad) != 0){
 			Collections.rotate(quad, 1);
 		}
