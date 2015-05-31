@@ -6,7 +6,10 @@ import processing.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cs211.boardgame.DigitalGame.HScrollbar;
 import cs211.imageprocessing.ImageProcessing;
+import ddf.minim.AudioPlayer;
+import ddf.minim.Minim;
 
 /**
  * @author rbsteinm
@@ -43,6 +46,8 @@ public class TangibleGame extends PApplet{
 	private final static int MAX_SCORE = 1000;
 	private final static int MIN_SCORE = 0;
 	private final static float DEFAULT_BARCHART_RECT_WIDTH = 3.0f;
+	private final static int PIN_HIT_BONUS = 50;
+	private final static float VELOCITY_TRESHOLD = 0.5f;
 	
 	private float barchartRectWidth = DEFAULT_BARCHART_RECT_WIDTH;
 	private float barchartRectHeight = DEFAULT_BARCHART_RECT_WIDTH;
@@ -72,26 +77,43 @@ public class TangibleGame extends PApplet{
 	private boolean shiftView = false;
 	
 	private Mover ball = new Mover();
-	private Cylinder cylinder = new Cylinder();
-	private List<PVector> cylinders = new ArrayList<PVector>();
+	private PShape bowlingPin;
+	private List<PVector> bowlingPins = new ArrayList<PVector>();
+	private List<Integer> pinsToBeRemoved = new ArrayList<Integer>();
 	private float score = 0;
 	private float lastScore = 0;
 	
 	private ImageProcessing imageProcessing;
 	private boolean quadDetected;
 	
+	PImage backgroundImage;
+	Minim audioContext;
+	AudioPlayer backgroundPlayer;
+	
 	public void setup(){
 		size(1500, 800, P3D);
+		size(1400, 800, P3D);
+		audioSetup();
+		graphicSetup();
+		setupTimer();
 		imageProcessing = new ImageProcessing(this);
 		imageProcessing.setup();
-		cylinder.setup();
+	}
+	
+	public void graphicSetup(){
+		bowlingPin = loadShape("bowlingPin7.obj");
 		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
 		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
 		scoreboard = createGraphics(SCOREBOARD_WIDTH + 2*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
 		barChart = createGraphics(width - TOP_VIEW_PLATE_WIDTH - SCOREBOARD_WIDTH - 4*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
-		setupTimer();
 		scrollbar = new HScrollbar(3*DATA_SURFACE_MARGIN + TOP_VIEW_PLATE_WIDTH + SCOREBOARD_WIDTH, height - DATA_SURFACE_MARGIN - SCROLLBAR_HEIGHT, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT);
-
+	}
+	
+	public void audioSetup(){
+		audioContext = new Minim(this);
+		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
+		backgroundPlayer.setGain(0.05f);
+		backgroundPlayer.loop();
 	}
 	
 	public void setupTimer(){
@@ -109,9 +131,10 @@ public class TangibleGame extends PApplet{
 	}
 	
 	public void draw(){
-		directionalLight(50, 100, 125, 0, -1, 0);
-		ambientLight(102, 102, 102);
-		background(255);
+		//directionalLight(50, 100, 125, 0, -1, 0);
+		//ambientLight(102, 102, 102);
+		lights();
+		background(204, 229, 255);
 		drawGame();
 		noLights();
 		drawBottomSurface();
@@ -137,8 +160,9 @@ public class TangibleGame extends PApplet{
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
 			stroke(0);
-			for(PVector cylinderPosition: cylinders){
-				cylinder.show(cylinderPosition.x, cylinderPosition.y);
+			for(PVector cylinderPosition: bowlingPins){
+				displayBowlingPin(cylinderPosition.x, cylinderPosition.y);
+				//cylinder.show(cylinderPosition.x, cylinderPosition.y);
 			}
 			noStroke();
 			ball.show();
@@ -146,8 +170,11 @@ public class TangibleGame extends PApplet{
 		else{
 			rect(-PLATE_WIDTH/2, -PLATE_DEPTH/2, PLATE_WIDTH, PLATE_DEPTH);
 			ball.shiftModeShow();
-			for(PVector cylinderPosition: cylinders){
-				cylinder.shiftModeShow(cylinderPosition.x, cylinderPosition.y);
+			for(PVector cylinderPosition: bowlingPins){
+				//showing pins positions with circles on the shiftMode plate
+				stroke(0);
+				ellipse(cylinderPosition.x, cylinderPosition.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
+				noStroke();
 			}
 		}
 		popMatrix();
@@ -183,7 +210,7 @@ public class TangibleGame extends PApplet{
 		topView.ellipse(ballPosX, ballPosZ, 5, 5);
 		//displaying cylinders on topView surface
 		topView.fill(255);
-		for(PVector cyl: cylinders){
+		for(PVector cyl: bowlingPins){
 			float cylX = map(cyl.x, -PLATE_WIDTH/2, PLATE_WIDTH/2, -topView.width/2, topView.width/2);
 			float cylZ = map(cyl.y, -PLATE_DEPTH/2, PLATE_DEPTH/2, -topView.height/2, topView.height/2);
 			topView.ellipse(cylX, cylZ, 10, 10);
@@ -260,7 +287,7 @@ public class TangibleGame extends PApplet{
 	 * returns given number in String format with only two digits after the ","
 	 */
 	public String roundNumber(float n){
-		return String.format("%.03f", n);
+		return String.format("%.02f", n);
 	}
 	
 	public void keyPressed(){
@@ -316,7 +343,7 @@ public class TangibleGame extends PApplet{
 			boolean onPlate = (x < PLATE_WIDTH/2 && x > -PLATE_WIDTH/2 && y < PLATE_DEPTH/2 && y > -PLATE_DEPTH/2);
 			boolean notOnBall = (dist(ball.location.x, ball.location.z, x, y) > SPHERE_RADIUS + CYLINDER_RADIUS);
 			if(onPlate && notOnBall){
-				cylinders.add(new PVector(x, y));
+				bowlingPins.add(new PVector(x, y));
 			}
 		}
 	}
@@ -345,6 +372,26 @@ public class TangibleGame extends PApplet{
 			while(rotateX < newX){
 				rotateX -= 0.005;
 			}
+		}
+	}
+	
+	public void displayBowlingPin(float x, float y){
+		pushMatrix();
+		translate(x, -PLATE_HEIGHT/2, y);
+		//noLights();
+		shape(bowlingPin);
+		//lights();
+		popMatrix();
+	}
+	
+	/**
+	 * removes the targets that've been hit
+	 */
+	public void removeHitPins(){
+		for(int i: pinsToBeRemoved){
+			//TODO creer une pin clignotante qui disparait au bout de 2 secondes aux coordonnes de la removedPin
+			bowlingPins.remove(i);
+			audioContext.loadFile("bowlingStrike.mp3").play();
 		}
 	}
 	
@@ -390,38 +437,37 @@ public class TangibleGame extends PApplet{
 		 */
 		private void checkEdges() {    
 		    if(location.x + SPHERE_RADIUS >= PLATE_WIDTH/2){
-		    	updateScore(score - velocity.mag());
 		    	location.x = PLATE_WIDTH/2 - SPHERE_RADIUS;
 		    	velocity.x = - velocity.x;
 		    }
 		    else if(location.x -SPHERE_RADIUS <= -PLATE_WIDTH/2 ){
-		    	updateScore(score - velocity.mag());
 		    	location.x = -PLATE_WIDTH/2 + SPHERE_RADIUS;
 		    	velocity.x = - velocity.x;
 		    }
 		    
 		    if(location.z + SPHERE_RADIUS >= PLATE_DEPTH/2) {
-		    	updateScore(score - velocity.mag());
 		    	location.z =  PLATE_DEPTH/2 - SPHERE_RADIUS;
 		    	velocity.z = - velocity.z;
 		    }    
 		    
 		    else if(location.z - SPHERE_RADIUS <= -PLATE_DEPTH/2 ){
-		    	updateScore(score - velocity.mag());
 		    	location.z = - PLATE_DEPTH/2 + SPHERE_RADIUS;
 		    	velocity.z = - velocity.z;
 		    }
-		    System.out.println(velocity.mag());
 		}
 		
 		/**
 		 * handles ball mouvements when it bounces against a cylinder
 		 */
 		private void checkCylinderCollision(){
-			for(PVector cyl: cylinders){
+			int index = 0;
+			for(PVector cyl: bowlingPins){
 				PVector n = PVector.sub(new PVector(location.x, location.z), cyl);
 				if(dist(location.x, location.z, cyl.x, cyl.y) < CYLINDER_RADIUS + SPHERE_RADIUS){
-					updateScore(score + velocity.mag());
+					if(ball.velocity.mag() > VELOCITY_TRESHOLD){
+						updateScore(score + PIN_HIT_BONUS);
+						pinsToBeRemoved.add(index);
+					}
 					PVector velocity2D = new PVector(velocity.x, velocity.z);
 					n.normalize();
 					location.x = n.x*(CYLINDER_RADIUS+SPHERE_RADIUS)+cyl.x;
@@ -429,6 +475,11 @@ public class TangibleGame extends PApplet{
 					PVector newVelocity2D = PVector.sub(velocity2D, PVector.mult(n, 2*PVector.dot(velocity2D, n)));
 					velocity = new PVector(newVelocity2D.x, 0, newVelocity2D.y);
 				}
+				index++;
+			}
+			if(pinsToBeRemoved.size() > 0){
+				removeHitPins();
+				pinsToBeRemoved.clear();
 			}
 		}
 
@@ -461,91 +512,6 @@ public class TangibleGame extends PApplet{
 			translate(location.x, location.z);
 			sphere(SPHERE_RADIUS);
 			popMatrix();
-		}
-	}
-	
-	/**
-	 * Cylinder represented by a 2-dimensional vector corresponding tos
-	 * its position on the plate. (0, 0) is on the center of the plate
-	 *
-	 */
-	public class Cylinder{
-		
-		private float baseRadius;
-		private float height;
-		private int resolution;
-		
-		public Cylinder(){
-			this.baseRadius = CYLINDER_RADIUS;
-			this.height = CYLINDER_HEIGHT;
-			this.resolution= CYLINDER_RESOLUTION;
-		}
-		
-		private PShape openCylinder = new PShape();
-		private PShape cylinderTop = new PShape();
-		private PShape cylinderBottom = new PShape();
-
-		/**
-		 * creates and sets up the 3D shape of the cylinder
-		 */
-		private void setup() {
-			float angle;
-			float[] x = new float[resolution + 1];
-			float[] y = new float[resolution + 1];
-			// get the x and y position on a circle for all the sides
-			for (int i = 0; i < x.length; i++) {
-				angle = (TWO_PI / resolution) * i;
-				x[i] = sin(angle) * baseRadius;
-				y[i] = cos(angle) * baseRadius;
-			}
-			openCylinder = createShape();
-			cylinderTop = createShape();
-			cylinderBottom = createShape();
-			//Draw border, top and bottom of the cylinder
-			openCylinder.beginShape(QUAD_STRIP);
-			cylinderTop.beginShape(TRIANGLE_FAN);
-			cylinderBottom.beginShape(TRIANGLE_FAN);
-			cylinderTop.vertex(0, 0, height);
-			cylinderBottom.vertex(0, 0, 0);
-			for (int i = 0; i < x.length; i++) {
-				openCylinder.vertex(x[i], y[i], 0);
-				openCylinder.vertex(x[i], y[i], height);
-				cylinderTop.vertex(x[i], y[i], height);
-				cylinderBottom.vertex(x[i], y[i], 0);
-			}
-			
-			openCylinder.endShape();
-			cylinderTop.endShape();
-			cylinderBottom.endShape();
-		}
-		
-		/**
-		 * displays the 3 shapes of the cylinder:
-		 * side, top and bottom
-		 */
-		private void display(){
-			shape(openCylinder);
-			shape(cylinderTop);
-			shape(cylinderBottom);
-		}
-		/**
-		 * Shows the cylinder on the plate when in classic mode
-		 */
-		public void show(float x, float y){
-			pushMatrix();
-			translate(x, -PLATE_HEIGHT/2, y);
-			rotateX(PI/2);
-			this.display();
-			popMatrix();
-		}
-		/**
-		 * shows a circle on the plate in shift mode exactly on
-		 * the cylinder's position
-		 */
-		public void shiftModeShow(float x, float y){
-			stroke(0);
-			ellipse(x, y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
-			noStroke();
 		}
 	}
 	

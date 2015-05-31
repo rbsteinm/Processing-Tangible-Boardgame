@@ -82,7 +82,8 @@ public class ImageProcessing{
 		}
 		img = cam.get();
 		img.resize(img.width/2, img.height/2);
-
+		edgeImg = getEdgeImage(img);
+		myApp.image(img, 0, 0);
 		if(edgeDetectionIndex == 0){
 			lines = detectLines(edgeImg, 6);
 		}
@@ -119,7 +120,7 @@ public class ImageProcessing{
 		//resultImg = hueFilter(img, 90, 140);
 		//resultImg = brightnessFilter(resultImg, 0, 200);
 		//resultImg = saturationFilter(resultImg, 100, 255);
-		HBSFilter(img, 60, 150, 60, 190, 100, 255);
+		HBSFilter(img, 90, 150, 60, 190, 100, 255);
 		img = (gaussianBlur(img, 95));
 		img = binaryThreshold(img, 30);
 		img = sobelAlgorithm(img);

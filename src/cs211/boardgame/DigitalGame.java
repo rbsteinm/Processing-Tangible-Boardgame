@@ -331,6 +331,11 @@ public class DigitalGame extends PApplet{
 		}
 	}
 	
+	/**
+	 * @param x
+	 * @param y
+	 * displays a bowling pin at coordinate (x, y) on the board
+	 */
 	public void displayBowlingPin(float x, float y){
 		pushMatrix();
 		translate(x, -PLATE_HEIGHT/2, y);
@@ -340,7 +345,10 @@ public class DigitalGame extends PApplet{
 		popMatrix();
 	}
 	
-	public void removeBowlingPins(){
+	/**
+	 * removes the targets that've been hit
+	 */
+	public void removeHitPins(){
 		for(int i: pinsToBeRemoved){
 			//TODO creer une pin clignotante qui disparait au bout de 2 secondes aux coordonnes de la removedPin
 			bowlingPins.remove(i);
@@ -431,7 +439,7 @@ public class DigitalGame extends PApplet{
 				index++;
 			}
 			if(pinsToBeRemoved.size() > 0){
-				removeBowlingPins();
+				removeHitPins();
 				pinsToBeRemoved.clear();
 			}
 		}
