@@ -1,4 +1,5 @@
 package cs211.boardgame;
+
 import java.util.ArrayList;
 import java.util.List;
 import processing.core.*;
@@ -6,18 +7,12 @@ import processing.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cs211.imageprocessing.ImageProcessing;
-
 /**
  * @author rbsteinm
  *
  */
 @SuppressWarnings("serial")
 public class DigitalGame extends PApplet{
-	
-	//TODO LA VITESSE N'EST PAS NULLE LORSQUE LA BALLE EST IMMOBILE, CE QUI
-	//POSE PROBLEME LORS DU CALCUL DU SCORE. A REGLER RAPIDEMENT
-	//Solution: poser un treshhold t: si v < t => v = 0
 	
 	private final static int MIN_WHEEL_VALUE = 0;
 	private final static int MAX_WHEEL_VALUE = 100;
@@ -28,6 +23,7 @@ public class DigitalGame extends PApplet{
 	private final static float PLATE_DEPTH = 450.0f;
 	private final static float PLATE_HEIGHT = 20.0f;
 	private final static float CYLINDER_RADIUS = 13.0f; //do not change this value, bowlingPin scaling issue
+	
 	private final static int DATA_SURFACE_HEIGHT = 140;
 	private final static int TOP_VIEW_PLATE_WIDTH = 100;
 	private final static int TOP_VIEW_PLATE_HEIGHT = 100;
@@ -36,11 +32,14 @@ public class DigitalGame extends PApplet{
 	private final static int SCOREBOARD_HEIGHT = 100;
 	private final static int BARCHART_WIDTH = 1000;
 	private final static int BARCHART_HEIGHT = 100;
+	private final static float DEFAULT_BARCHART_RECT_WIDTH = 3.0f;
 	private final static int SCROLLBAR_HEIGHT = 10;
 	private final static int SCROLLBAR_WIDTH = 400;
+	
 	private final static int MAX_SCORE = 1000;
 	private final static int MIN_SCORE = 0;
-	private final static float DEFAULT_BARCHART_RECT_WIDTH = 3.0f;
+	private final static int PIN_HIT_BONUS = 50;
+	private final static float VELOCITY_TRESHOLD = 0.5f;
 	
 	private float barchartRectWidth = DEFAULT_BARCHART_RECT_WIDTH;
 	private float barchartRectHeight = DEFAULT_BARCHART_RECT_WIDTH;
@@ -196,7 +195,11 @@ public class DigitalGame extends PApplet{
 		noStroke();
 		String scoreText = "";
 		scoreText += "score:\n" + roundNumber(score);
-		scoreText += "\nVelocity: \n" + roundNumber(ball.velocity.mag());
+		if(ball.velocity.mag() > VELOCITY_TRESHOLD){
+			scoreText += "\nVelocity: \n" + roundNumber(ball.velocity.mag());
+		} else{
+			scoreText += "\nVelocity: \n 0.00";
+		}
 		scoreText += "\nLast score: \n" + roundNumber(lastScore);
 		scoreboard.textSize(10);
 		scoreboard.fill(0);
@@ -254,7 +257,7 @@ public class DigitalGame extends PApplet{
 	 * returns given number in String format with only two digits after the ","
 	 */
 	public String roundNumber(float n){
-		return String.format("%.03f", n);
+		return String.format("%.02f", n);
 	}
 	
 	public void keyPressed(){
@@ -366,28 +369,23 @@ public class DigitalGame extends PApplet{
 		 */
 		private void checkEdges() {    
 		    if(location.x + SPHERE_RADIUS >= PLATE_WIDTH/2){
-		    	updateScore(score - velocity.mag());
 		    	location.x = PLATE_WIDTH/2 - SPHERE_RADIUS;
 		    	velocity.x = - velocity.x;
 		    }
 		    else if(location.x -SPHERE_RADIUS <= -PLATE_WIDTH/2 ){
-		    	updateScore(score - velocity.mag());
 		    	location.x = -PLATE_WIDTH/2 + SPHERE_RADIUS;
 		    	velocity.x = - velocity.x;
 		    }
 		    
 		    if(location.z + SPHERE_RADIUS >= PLATE_DEPTH/2) {
-		    	updateScore(score - velocity.mag());
 		    	location.z =  PLATE_DEPTH/2 - SPHERE_RADIUS;
 		    	velocity.z = - velocity.z;
 		    }    
 		    
 		    else if(location.z - SPHERE_RADIUS <= -PLATE_DEPTH/2 ){
-		    	updateScore(score - velocity.mag());
 		    	location.z = - PLATE_DEPTH/2 + SPHERE_RADIUS;
 		    	velocity.z = - velocity.z;
 		    }
-		    //System.out.println(velocity.mag());
 		}
 		
 		/**
@@ -397,7 +395,9 @@ public class DigitalGame extends PApplet{
 			for(PVector cyl: bowlingPins){
 				PVector n = PVector.sub(new PVector(location.x, location.z), cyl);
 				if(dist(location.x, location.z, cyl.x, cyl.y) < CYLINDER_RADIUS + SPHERE_RADIUS){
-					updateScore(score + velocity.mag());
+					if(ball.velocity.mag() > VELOCITY_TRESHOLD){
+						updateScore(score + PIN_HIT_BONUS);
+					}
 					PVector velocity2D = new PVector(velocity.x, velocity.z);
 					n.normalize();
 					location.x = n.x*(CYLINDER_RADIUS+SPHERE_RADIUS)+cyl.x;
