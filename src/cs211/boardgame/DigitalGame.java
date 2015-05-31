@@ -28,7 +28,7 @@ public class DigitalGame extends PApplet{
 	private final static float PLATE_DEPTH = 350.0f;
 	private final static float PLATE_HEIGHT = 20.0f;
 	private final static float CYLINDER_HEIGHT = 40.0f;
-	private final static float CYLINDER_RADIUS = 15.0f;
+	private final static float CYLINDER_RADIUS = 13.0f; //do not change this value, bowlingPin scaling issue
 	private final static int CYLINDER_RESOLUTION = 40;
 	private final static int DATA_SURFACE_HEIGHT = 140;
 	private final static int TOP_VIEW_PLATE_WIDTH = 100;
