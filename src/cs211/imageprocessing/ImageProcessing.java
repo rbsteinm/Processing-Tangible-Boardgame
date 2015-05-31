@@ -82,8 +82,7 @@ public class ImageProcessing{
 		}
 		img = cam.get();
 		img.resize(img.width/2, img.height/2);
-		edgeImg = getEdgeImage(img);
-		myApp.image(img, 0, 0);
+
 		if(edgeDetectionIndex == 0){
 			lines = detectLines(edgeImg, 6);
 		}

@@ -65,7 +65,6 @@ public class DigitalGame extends PApplet{
 	private float rotateZ = 0.0f;
 	private float rotateSpeedXZ = 350.0f;
 	private float rotateSpeedY = PI/6;
-	private float boardRotateSpeed = 2.0f;
 	
 	private float wheelValue = 50.0f;
 	
@@ -73,14 +72,19 @@ public class DigitalGame extends PApplet{
 	
 	private Mover ball = new Mover();
 	private Cylinder cylinder = new Cylinder();
+	private PShape bowlingPin;
 	private List<PVector> cylinders = new ArrayList<PVector>();
 	private float score = 0;
 	private float lastScore = 0;
 	
+	PImage backgroundImage;
 	
 	public void setup(){
-		size(1500, 800, P3D);
+		size(1200, 800, P3D);
+		backgroundImage  = loadImage("YN.jpg");
+		backgroundImage.resize(width, height);
 		cylinder.setup();
+		bowlingPin = loadShape("bowlingPin7.obj");
 		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
 		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
 		scoreboard = createGraphics(SCOREBOARD_WIDTH + 2*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
@@ -105,9 +109,11 @@ public class DigitalGame extends PApplet{
 	}
 	
 	public void draw(){
-		directionalLight(50, 100, 125, 0, -1, 0);
-		ambientLight(102, 102, 102);
-		background(255);
+		//directionalLight(50, 100, 125, 0, -1, 0);
+		//ambientLight(102, 102, 102);
+		lights();
+		//background(backgroundImage);
+		background(220);
 		drawGame();
 		noLights();
 		drawBottomSurface();
@@ -126,7 +132,8 @@ public class DigitalGame extends PApplet{
 			noFill();
 			stroke(0);
 			for(PVector cylinderPosition: cylinders){
-				cylinder.show(cylinderPosition.x, cylinderPosition.y);
+				displayBowlingPin(cylinderPosition.x, cylinderPosition.y);
+				//cylinder.show(cylinderPosition.x, cylinderPosition.y);
 			}
 			noStroke();
 			ball.show();
@@ -309,6 +316,15 @@ public class DigitalGame extends PApplet{
 		}
 	}
 	
+	public void displayBowlingPin(float x, float y){
+		pushMatrix();
+		translate(x, -PLATE_HEIGHT/2, y);
+		//noLights();
+		shape(bowlingPin);
+		//lights();
+		popMatrix();
+	}
+	
 	
 	/**
 	 * class representing a ball (sphere) and defining the way it moves
@@ -372,7 +388,7 @@ public class DigitalGame extends PApplet{
 		    	location.z = - PLATE_DEPTH/2 + SPHERE_RADIUS;
 		    	velocity.z = - velocity.z;
 		    }
-		    System.out.println(velocity.mag());
+		    //System.out.println(velocity.mag());
 		}
 		
 		/**
