@@ -1,12 +1,14 @@
 package cs211.boardgame;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import processing.core.*;
 import processing.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import ddf.minim.AudioPlayer;
+import ddf.minim.Minim;
 
 /**
  * @author rbsteinm
@@ -76,18 +78,14 @@ public class DigitalGame extends PApplet{
 	private float lastScore = 0;
 	
 	PImage backgroundImage;
+	Minim audioContext;
+	AudioPlayer backgroundPlayer;
 	
 	public void setup(){
 		size(1400, 800, P3D);
-		backgroundImage  = loadImage("YN.jpg");
-		backgroundImage.resize(width, height);
-		bowlingPin = loadShape("bowlingPin7.obj");
-		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
-		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
-		scoreboard = createGraphics(SCOREBOARD_WIDTH + 2*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
-		barChart = createGraphics(width - TOP_VIEW_PLATE_WIDTH - SCOREBOARD_WIDTH - 4*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
+		audioSetup();
+		graphicSetup();
 		setupTimer();
-		scrollbar = new HScrollbar(3*DATA_SURFACE_MARGIN + TOP_VIEW_PLATE_WIDTH + SCOREBOARD_WIDTH, height - DATA_SURFACE_MARGIN - SCROLLBAR_HEIGHT, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT);
 
 	}
 	
@@ -103,6 +101,22 @@ public class DigitalGame extends PApplet{
 		
 		timer = new Timer();
 		timer.scheduleAtFixedRate(task, 0, 1000);
+	}
+	
+	public void graphicSetup(){
+		bowlingPin = loadShape("bowlingPin7.obj");
+		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
+		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
+		scoreboard = createGraphics(SCOREBOARD_WIDTH + 2*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
+		barChart = createGraphics(width - TOP_VIEW_PLATE_WIDTH - SCOREBOARD_WIDTH - 4*DATA_SURFACE_MARGIN, DATA_SURFACE_HEIGHT);
+		scrollbar = new HScrollbar(3*DATA_SURFACE_MARGIN + TOP_VIEW_PLATE_WIDTH + SCOREBOARD_WIDTH, height - DATA_SURFACE_MARGIN - SCROLLBAR_HEIGHT, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT);
+	}
+	
+	public void audioSetup(){
+		audioContext = new Minim(this);
+		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
+		backgroundPlayer.setGain(0.05f);
+		backgroundPlayer.loop();
 	}
 	
 	public void draw(){
@@ -170,9 +184,6 @@ public class DigitalGame extends PApplet{
 		//displaying ball on topView surface
 		topView.noStroke();
 		topView.fill(255, 0, 0);
-		//TODO fade away trail?
-		//topViewSurface.fill(0, 0, 255);
-		//topViewSurface.fill(255, 0, 0, 10);
 		float ballPosX = map(ball.location.x, -PLATE_WIDTH/2, PLATE_WIDTH/2, -topView.width/2, topView.width/2);
 		float ballPosZ = map(ball.location.z, -PLATE_DEPTH/2, PLATE_DEPTH/2, -topView.height/2, topView.height/2);
 		topView.ellipse(ballPosX, ballPosZ, 5, 5);
@@ -331,9 +342,10 @@ public class DigitalGame extends PApplet{
 	
 	public void removeBowlingPins(){
 		for(int i: pinsToBeRemoved){
+			//TODO creer une pin clignotante qui disparait au bout de 2 secondes aux coordonnes de la removedPin
 			bowlingPins.remove(i);
+			audioContext.loadFile("bowlingStrike.mp3").play();
 		}
-		System.out.println("pin removed");
 	}
 	
 	

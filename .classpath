@@ -30,5 +30,11 @@
 	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/video/library/jna.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/video/library/video.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/lib/papaya/library/papaya.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/jl1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/jsminim.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/minim.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/tritonus_aos.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/processing-2.2.1/modes/java/libraries/minim/library/tritonus_share.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
