@@ -24,12 +24,10 @@ public class DigitalGame extends PApplet{
 	private final static float MIN_ANGLE = -(PI/3);
 	private final static float MAX_ANGLE = (PI/3);
 	private final static float SPHERE_RADIUS = 10.0f;
-	private final static float PLATE_WIDTH = 350.0f;
-	private final static float PLATE_DEPTH = 350.0f;
+	private final static float PLATE_WIDTH = 450.0f;
+	private final static float PLATE_DEPTH = 450.0f;
 	private final static float PLATE_HEIGHT = 20.0f;
-	private final static float CYLINDER_HEIGHT = 40.0f;
 	private final static float CYLINDER_RADIUS = 13.0f; //do not change this value, bowlingPin scaling issue
-	private final static int CYLINDER_RESOLUTION = 40;
 	private final static int DATA_SURFACE_HEIGHT = 140;
 	private final static int TOP_VIEW_PLATE_WIDTH = 100;
 	private final static int TOP_VIEW_PLATE_HEIGHT = 100;
@@ -71,19 +69,17 @@ public class DigitalGame extends PApplet{
 	private boolean shiftView = false;
 	
 	private Mover ball = new Mover();
-	private Cylinder cylinder = new Cylinder();
 	private PShape bowlingPin;
-	private List<PVector> cylinders = new ArrayList<PVector>();
+	private List<PVector> bowlingPins = new ArrayList<PVector>();
 	private float score = 0;
 	private float lastScore = 0;
 	
 	PImage backgroundImage;
 	
 	public void setup(){
-		size(1200, 800, P3D);
+		size(1400, 800, P3D);
 		backgroundImage  = loadImage("YN.jpg");
 		backgroundImage.resize(width, height);
-		cylinder.setup();
 		bowlingPin = loadShape("bowlingPin7.obj");
 		dataSurface = createGraphics(width, DATA_SURFACE_HEIGHT, P2D);
 		topView = createGraphics(TOP_VIEW_PLATE_WIDTH, TOP_VIEW_PLATE_HEIGHT, P2D);
@@ -113,7 +109,7 @@ public class DigitalGame extends PApplet{
 		//ambientLight(102, 102, 102);
 		lights();
 		//background(backgroundImage);
-		background(220);
+		background(204, 229, 255);
 		drawGame();
 		noLights();
 		drawBottomSurface();
@@ -131,7 +127,7 @@ public class DigitalGame extends PApplet{
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
 			stroke(0);
-			for(PVector cylinderPosition: cylinders){
+			for(PVector cylinderPosition: bowlingPins){
 				displayBowlingPin(cylinderPosition.x, cylinderPosition.y);
 				//cylinder.show(cylinderPosition.x, cylinderPosition.y);
 			}
@@ -141,8 +137,11 @@ public class DigitalGame extends PApplet{
 		else{
 			rect(-PLATE_WIDTH/2, -PLATE_DEPTH/2, PLATE_WIDTH, PLATE_DEPTH);
 			ball.shiftModeShow();
-			for(PVector cylinderPosition: cylinders){
-				cylinder.shiftModeShow(cylinderPosition.x, cylinderPosition.y);
+			for(PVector cylinderPosition: bowlingPins){
+				//showing pins positions with circles on the shiftMode plate
+				stroke(0);
+				ellipse(cylinderPosition.x, cylinderPosition.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
+				noStroke();
 			}
 		}
 		popMatrix();
@@ -178,7 +177,7 @@ public class DigitalGame extends PApplet{
 		topView.ellipse(ballPosX, ballPosZ, 5, 5);
 		//displaying cylinders on topView surface
 		topView.fill(255);
-		for(PVector cyl: cylinders){
+		for(PVector cyl: bowlingPins){
 			float cylX = map(cyl.x, -PLATE_WIDTH/2, PLATE_WIDTH/2, -topView.width/2, topView.width/2);
 			float cylZ = map(cyl.y, -PLATE_DEPTH/2, PLATE_DEPTH/2, -topView.height/2, topView.height/2);
 			topView.ellipse(cylX, cylZ, 10, 10);
@@ -311,7 +310,7 @@ public class DigitalGame extends PApplet{
 			boolean onPlate = (x < PLATE_WIDTH/2 && x > -PLATE_WIDTH/2 && y < PLATE_DEPTH/2 && y > -PLATE_DEPTH/2);
 			boolean notOnBall = (dist(ball.location.x, ball.location.z, x, y) > SPHERE_RADIUS + CYLINDER_RADIUS);
 			if(onPlate && notOnBall){
-				cylinders.add(new PVector(x, y));
+				bowlingPins.add(new PVector(x, y));
 			}
 		}
 	}
@@ -395,7 +394,7 @@ public class DigitalGame extends PApplet{
 		 * handles ball mouvements when it bounces against a cylinder
 		 */
 		private void checkCylinderCollision(){
-			for(PVector cyl: cylinders){
+			for(PVector cyl: bowlingPins){
 				PVector n = PVector.sub(new PVector(location.x, location.z), cyl);
 				if(dist(location.x, location.z, cyl.x, cyl.y) < CYLINDER_RADIUS + SPHERE_RADIUS){
 					updateScore(score + velocity.mag());
@@ -441,90 +440,7 @@ public class DigitalGame extends PApplet{
 		}
 	}
 	
-	/**
-	 * Cylinder represented by a 2-dimensional vector corresponding tos
-	 * its position on the plate. (0, 0) is on the center of the plate
-	 *
-	 */
-	public class Cylinder{
-		
-		private float baseRadius;
-		private float height;
-		private int resolution;
-		
-		public Cylinder(){
-			this.baseRadius = CYLINDER_RADIUS;
-			this.height = CYLINDER_HEIGHT;
-			this.resolution= CYLINDER_RESOLUTION;
-		}
-		
-		private PShape openCylinder = new PShape();
-		private PShape cylinderTop = new PShape();
-		private PShape cylinderBottom = new PShape();
-
-		/**
-		 * creates and sets up the 3D shape of the cylinder
-		 */
-		private void setup() {
-			float angle;
-			float[] x = new float[resolution + 1];
-			float[] y = new float[resolution + 1];
-			// get the x and y position on a circle for all the sides
-			for (int i = 0; i < x.length; i++) {
-				angle = (TWO_PI / resolution) * i;
-				x[i] = sin(angle) * baseRadius;
-				y[i] = cos(angle) * baseRadius;
-			}
-			openCylinder = createShape();
-			cylinderTop = createShape();
-			cylinderBottom = createShape();
-			//Draw border, top and bottom of the cylinder
-			openCylinder.beginShape(QUAD_STRIP);
-			cylinderTop.beginShape(TRIANGLE_FAN);
-			cylinderBottom.beginShape(TRIANGLE_FAN);
-			cylinderTop.vertex(0, 0, height);
-			cylinderBottom.vertex(0, 0, 0);
-			for (int i = 0; i < x.length; i++) {
-				openCylinder.vertex(x[i], y[i], 0);
-				openCylinder.vertex(x[i], y[i], height);
-				cylinderTop.vertex(x[i], y[i], height);
-				cylinderBottom.vertex(x[i], y[i], 0);
-			}
-			
-			openCylinder.endShape();
-			cylinderTop.endShape();
-			cylinderBottom.endShape();
-		}
-		
-		/**
-		 * displays the 3 shapes of the cylinder:
-		 * side, top and bottom
-		 */
-		private void display(){
-			shape(openCylinder);
-			shape(cylinderTop);
-			shape(cylinderBottom);
-		}
-		/**
-		 * Shows the cylinder on the plate when in classic mode
-		 */
-		public void show(float x, float y){
-			pushMatrix();
-			translate(x, -PLATE_HEIGHT/2, y);
-			rotateX(PI/2);
-			this.display();
-			popMatrix();
-		}
-		/**
-		 * shows a circle on the plate in shift mode exactly on
-		 * the cylinder's position
-		 */
-		public void shiftModeShow(float x, float y){
-			stroke(0);
-			ellipse(x, y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
-			noStroke();
-		}
-	}
+	
 	
 	class HScrollbar {
 		
