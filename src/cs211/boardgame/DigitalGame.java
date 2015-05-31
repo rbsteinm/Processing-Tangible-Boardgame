@@ -1,6 +1,7 @@
 package cs211.boardgame;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import processing.core.*;
 import processing.event.MouseEvent;
@@ -70,6 +71,7 @@ public class DigitalGame extends PApplet{
 	private Mover ball = new Mover();
 	private PShape bowlingPin;
 	private List<PVector> bowlingPins = new ArrayList<PVector>();
+	private List<Integer> pinsToBeRemoved = new ArrayList<Integer>();
 	private float score = 0;
 	private float lastScore = 0;
 	
@@ -327,6 +329,13 @@ public class DigitalGame extends PApplet{
 		popMatrix();
 	}
 	
+	public void removeBowlingPins(){
+		for(int i: pinsToBeRemoved){
+			bowlingPins.remove(i);
+		}
+		System.out.println("pin removed");
+	}
+	
 	
 	/**
 	 * class representing a ball (sphere) and defining the way it moves
@@ -392,11 +401,13 @@ public class DigitalGame extends PApplet{
 		 * handles ball mouvements when it bounces against a cylinder
 		 */
 		private void checkCylinderCollision(){
+			int index = 0;
 			for(PVector cyl: bowlingPins){
 				PVector n = PVector.sub(new PVector(location.x, location.z), cyl);
 				if(dist(location.x, location.z, cyl.x, cyl.y) < CYLINDER_RADIUS + SPHERE_RADIUS){
 					if(ball.velocity.mag() > VELOCITY_TRESHOLD){
 						updateScore(score + PIN_HIT_BONUS);
+						pinsToBeRemoved.add(index);
 					}
 					PVector velocity2D = new PVector(velocity.x, velocity.z);
 					n.normalize();
@@ -405,6 +416,11 @@ public class DigitalGame extends PApplet{
 					PVector newVelocity2D = PVector.sub(velocity2D, PVector.mult(n, 2*PVector.dot(velocity2D, n)));
 					velocity = new PVector(newVelocity2D.x, 0, newVelocity2D.y);
 				}
+				index++;
+			}
+			if(pinsToBeRemoved.size() > 0){
+				removeBowlingPins();
+				pinsToBeRemoved.clear();
 			}
 		}
 
