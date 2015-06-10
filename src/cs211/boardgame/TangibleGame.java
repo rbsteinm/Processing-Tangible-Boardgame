@@ -309,11 +309,31 @@ public class TangibleGame extends PApplet{
 		if(shiftView){
 			float x = mouseX - width/2.0f;
 			float y = mouseY - height/2.0f;
-			boolean onPlate = (x < PLATE_WIDTH/2 && x > -PLATE_WIDTH/2 && y < PLATE_DEPTH/2 && y > -PLATE_DEPTH/2);
-			boolean notOnBall = (dist(ball.location.x, ball.location.z, x, y) > SPHERE_RADIUS + CYLINDER_RADIUS);
-			if(onPlate && notOnBall){
-				bowlingPins.add(new PVector(x, y));
+			createPin(x, y);
+		}
+	}
+	
+	/**
+	 * @param x
+	 * @param y
+	 * create a new pin at coord. (x, y) if the location 
+	 * is on the plate and free (other pins/ball)
+	 */
+	public void createPin(float x, float y){
+		boolean onPlate = (x < PLATE_WIDTH/2 && x > -PLATE_WIDTH/2 && y < PLATE_DEPTH/2 && y > -PLATE_DEPTH/2);
+		boolean notOnBall = (dist(ball.location.x, ball.location.z, x, y) > SPHERE_RADIUS + CYLINDER_RADIUS);
+		boolean notOnOtherPin = true;
+		if(!onPlate || !notOnBall){
+			return;
+		}
+		for(PVector vect: bowlingPins){
+			if(dist(vect.x, vect.y, x, y) < 2*CYLINDER_RADIUS){
+				notOnOtherPin = false;
+				return;
 			}
+		}
+		if(notOnOtherPin){
+			bowlingPins.add(new PVector(x, y));
 		}
 	}
 	
