@@ -13,6 +13,9 @@ import ddf.minim.Minim;
 
 /**
  * @author rbsteinm
+ * -----> README <-----
+ * In "Milestone IV test mode", the board is rotated of -PI/2 around the X-axis to make 
+ * the comparison between the real board and game board easier. The ball is also frozen in the bottom-right corner.
  *
  */
 @SuppressWarnings("serial")
@@ -78,11 +81,17 @@ public class TangibleGame extends PApplet{
 	
 	private ImageProcessing imageProcessing;
 	private boolean quadDetected;
-	private final static boolean MILESTONE_TEST_MOVIE = true;
+	private boolean MILESTONE_TEST_MOVIE = true;
 	
 	PImage backgroundImage;
 	Minim audioContext;
 	AudioPlayer backgroundPlayer;
+	
+	public TangibleGame(boolean MilestoneTest){
+		this.MILESTONE_TEST_MOVIE = MilestoneTest;
+	}
+	
+	public TangibleGame(){}
 	
 	public void setup(){
 		size(1500, 800, P3D);
@@ -344,17 +353,17 @@ public class TangibleGame extends PApplet{
 		if(MILESTONE_TEST_MOVIE){
 			rotateX = -rx - (PI/2);
 			rotateX = constrain(rotateX, MIN_ANGLE - PI/2, MAX_ANGLE - PI/2);
-			//rotateX = -(PI/2.0f);
 		}else{
 			rotateX = rx;
 			rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
 		}
-		//rotateZ = -ry;
+		rotateZ = -ry;
 		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
 		
-		//float rz = imageProcessing.getRotations().z;
-		//rotateY = -rz;
-		//rotateY = constrain(rotateY, MIN_ANGLE, MAX_ANGLE);
+		/*float rz = imageProcessing.getRotations().z;
+		rotateY = -rz;
+		rotateY = constrain(rotateY, MIN_ANGLE, MAX_ANGLE);*/
+		System.out.println("(" + rotateX + ", " + rotateY + ", " + rotateZ + ")");
 	}
 	
 	
@@ -468,7 +477,11 @@ public class TangibleGame extends PApplet{
 		 * displays the sphere on the screen
 		 */
 		private void display() {
-			translate(location.x, location.y, location.z);
+			if(MILESTONE_TEST_MOVIE){
+				translate(PLATE_WIDTH/2, location.y, PLATE_DEPTH/2);
+			} else{
+				translate(location.x, location.y, location.z);
+			}
 			fill(180, 180, 180);
 			sphere(SPHERE_RADIUS);
 			noFill();

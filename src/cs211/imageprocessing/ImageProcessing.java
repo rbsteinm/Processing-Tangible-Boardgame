@@ -138,7 +138,11 @@ public class ImageProcessing{
 		//resultImg = hueFilter(img, 90, 140);
 		//resultImg = brightnessFilter(resultImg, 0, 200);
 		//resultImg = saturationFilter(resultImg, 100, 255);
-		HBSFilter(img, 90, 150, 60, 190, 100, 255);
+		if(TESTMOVIE){
+			HBSFilter(img, 90, 130, 60, 190, 100, 255);
+		}else{
+			HBSFilter(img, 90, 150, 60, 190, 100, 255);
+		}
 		img = (gaussianBlur(img, 95));
 		img = binaryThreshold(img, 30);
 		img = sobelAlgorithm(img);
@@ -647,7 +651,7 @@ public class ImageProcessing{
 				remainingQuads.add(quad);
 			}
 		}
-		System.out.println((quads.size() - remainingQuads.size()) + " quads filtered; " + remainingQuads.size() + " remaining.");
+		//System.out.println((quads.size() - remainingQuads.size()) + " quads filtered; " + remainingQuads.size() + " remaining.");
 		return remainingQuads;
 	}
 	
