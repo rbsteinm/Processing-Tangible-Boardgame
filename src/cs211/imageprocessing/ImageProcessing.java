@@ -11,6 +11,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.video.Capture;
+import processing.video.Movie;
 
 /**
  * @author rbsteinm
@@ -27,13 +28,15 @@ public class ImageProcessing{
 	
 	//only lines with more than MIN_VOTES are drawn by hough alg
 	//set accordingly to the the size of the picture
-	private static final int MIN_VOTES = 100;
+	private static final int MIN_VOTES = 50;
 	private static final float DISCRETIZATION_STEPS_PHI = 0.06f;
 	private static final float DISCRETIZATION_STEPS_R = 2.5f;
 	
 	private PImage img = new PImage(640, 480);
 	private PImage edgeImg;
 	private Capture cam;
+	private Movie testMovie;
+	private static final boolean TESTMOVIE = true;
 	
 	private List<PVector> lines;
 	private List<int[]> quadCycles;
@@ -41,8 +44,9 @@ public class ImageProcessing{
 	private TwoDThreeD twoDThreeD;
 	private PVector rotations = new PVector(0, 0, 0);
 	
+	QuadGraph quadGraph = new QuadGraph();
 	private int edgeDetectionIndex = 0;
-	private final static int EDGE_DETECTION_RATE = 5;
+	private final static int EDGE_DETECTION_RATE = 1;
 	
 	
 	public ImageProcessing(PApplet myPApplet){
@@ -53,7 +57,12 @@ public class ImageProcessing{
 	
 	public void setup() {
 		twoDThreeD = new TwoDThreeD(img.width, img.height);
-		setupCamera();
+		if(TESTMOVIE){
+			testMovie = new Movie(myApp, "C:\\Users\\rbsteinm\\Documents\\workspaces\\ProcessingWorkspace\\Game\\src\\data\\testvideo.mp4");
+			testMovie.loop();
+		}else{
+			setupCamera();
+		}
 	}
 	
 	public void setupCamera(){
@@ -74,18 +83,26 @@ public class ImageProcessing{
 	
 
 	public boolean draw() {
-		if (cam.available() == true) {
-			cam.read();
+		if(TESTMOVIE){
+			if(testMovie.available()){
+				testMovie.read();
+			}
+			img = testMovie.get();
+		}else{
+			if (cam.available()) {
+				cam.read();
+			}
+			img = cam.get();
 		}
-		img = cam.get();
 		img.resize(img.width/2, img.height/2);
 		myApp.image(img, 0, 0);
+		//TODO fix edge detection index lag issues
 		if(edgeDetectionIndex == 0){
 			edgeImg = getEdgeImage(img);
 			lines = detectLines(edgeImg, 6);
 		}
 		edgeDetectionIndex = (edgeDetectionIndex + 1) % EDGE_DETECTION_RATE;
-		QuadGraph quadGraph = new QuadGraph();
+		
 		quadGraph.build(lines, img.width, img.height);
 		quadCycles = filterQuads(quadGraph.findCycles());
 		if(quadCycles.size() > 0){
@@ -96,6 +113,9 @@ public class ImageProcessing{
 				plotIntersections(intersections);
 				return true;
 			}
+		}
+		else{
+			System.out.println("no quad detected!");
 		}
 		return false;
 	}

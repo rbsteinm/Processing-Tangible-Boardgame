@@ -22,17 +22,13 @@ public class TangibleGame extends PApplet{
 	//POSE PROBLEME LORS DU CALCUL DU SCORE. A REGLER RAPIDEMENT
 	//Solution: poser un treshhold t: si v < t => v = 0
 	
-	private final static int MIN_WHEEL_VALUE = 0;
-	private final static int MAX_WHEEL_VALUE = 100;
 	private final static float MIN_ANGLE = -(PI/3);
 	private final static float MAX_ANGLE = (PI/3);
 	private final static float SPHERE_RADIUS = 10.0f;
 	private final static float PLATE_WIDTH = 350.0f;
 	private final static float PLATE_DEPTH = 350.0f;
 	private final static float PLATE_HEIGHT = 20.0f;
-	private final static float CYLINDER_HEIGHT = 40.0f;
 	private final static float CYLINDER_RADIUS = 15.0f;
-	private final static int CYLINDER_RESOLUTION = 40;
 	private final static int DATA_SURFACE_HEIGHT = 140;
 	private final static int TOP_VIEW_PLATE_WIDTH = 100;
 	private final static int TOP_VIEW_PLATE_HEIGHT = 100;
@@ -68,11 +64,8 @@ public class TangibleGame extends PApplet{
 	private float rotateX = 0.0f;
 	private float rotateY = 0.0f;
 	private float rotateZ = 0.0f;
-	private float rotateSpeedXZ = 350.0f;
 	private float rotateSpeedY = PI/6;
 	private float boardRotateSpeed = 2.0f;
-	
-	private float wheelValue = 50.0f;
 	
 	private boolean shiftView = false;
 	
@@ -157,9 +150,8 @@ public class TangibleGame extends PApplet{
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
 			stroke(0);
-			for(PVector cylinderPosition: bowlingPins){
-				displayBowlingPin(cylinderPosition.x, cylinderPosition.y);
-				//cylinder.show(cylinderPosition.x, cylinderPosition.y);
+			for(PVector pin: bowlingPins){
+				displayBowlingPin(pin.x, pin.y);
 			}
 			noStroke();
 			ball.show();
@@ -223,7 +215,11 @@ public class TangibleGame extends PApplet{
 		noStroke();
 		String scoreText = "";
 		scoreText += "score:\n" + roundNumber(score);
-		scoreText += "\nVelocity: \n" + roundNumber(ball.velocity.mag());
+		if(ball.velocity.mag() > VELOCITY_TRESHOLD){
+			scoreText += "\nVelocity: \n" + roundNumber(ball.velocity.mag());
+		} else{
+			scoreText += "\nVelocity: \n 0.0";
+		}
 		scoreText += "\nLast score: \n" + roundNumber(lastScore);
 		scoreboard.textSize(10);
 		scoreboard.fill(0);
@@ -340,36 +336,21 @@ public class TangibleGame extends PApplet{
 	public void updateAnglesFromBoard(){
 		float rx = imageProcessing.getRotations().x/boardRotateSpeed;
 		float ry = imageProcessing.getRotations().y/boardRotateSpeed;
-		//smoothRotateX(rx);
 		rotateX = rx;
-		rotateZ = ry;
+		rotateZ = -ry;
 		rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
 		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
+		
+		/*float rz = imageProcessing.getRotations().z/boardRotateSpeed;
+		rotateY = -rz;
+		rotateY = constrain(rotateY, MIN_ANGLE, MAX_ANGLE);*/
 	}
 	
-	/**
-	 * makes the plate rotate smoothly in order to avoid brutal movements
-	 * @throws InterruptedException 
-	 */
-	public void smoothRotateX(float newX){
-		if(newX < rotateX){
-			while(rotateX > newX){
-				rotateX += 0.005;
-			}
-		}
-		else{
-			while(rotateX < newX){
-				rotateX -= 0.005;
-			}
-		}
-	}
 	
 	public void displayBowlingPin(float x, float y){
 		pushMatrix();
 		translate(x, -PLATE_HEIGHT/2, y);
-		//noLights();
 		shape(bowlingPin);
-		//lights();
 		popMatrix();
 	}
 	
