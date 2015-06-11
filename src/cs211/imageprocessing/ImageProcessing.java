@@ -28,7 +28,7 @@ public class ImageProcessing{
 	
 	//only lines with more than MIN_VOTES are drawn by hough alg
 	//set accordingly to the the size of the picture
-	private static final int MIN_VOTES = 50;
+	private static final int MIN_VOTES = 70;
 	private static final float DISCRETIZATION_STEPS_PHI = 0.06f;
 	private static final float DISCRETIZATION_STEPS_R = 2.5f;
 	
@@ -36,7 +36,7 @@ public class ImageProcessing{
 	private PImage edgeImg;
 	private Capture cam;
 	private Movie testMovie;
-	private static final boolean TESTMOVIE = true;
+	private boolean TESTMOVIE;
 	
 	private List<PVector> lines;
 	private List<int[]> quadCycles;
@@ -49,10 +49,11 @@ public class ImageProcessing{
 	private final static int EDGE_DETECTION_RATE = 1;
 	
 	
-	public ImageProcessing(PApplet myPApplet){
+	public ImageProcessing(PApplet myPApplet, boolean testMovie){
 		this.myApp = myPApplet;
 		this.width = myPApplet.width;
 		this.height = myPApplet.height;
+		this.TESTMOVIE = testMovie;
 	}
 	
 	public void setup() {

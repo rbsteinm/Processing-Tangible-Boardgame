@@ -65,7 +65,7 @@ public class TangibleGame extends PApplet{
 	private float rotateY = 0.0f;
 	private float rotateZ = 0.0f;
 	private float rotateSpeedY = PI/6;
-	private float boardRotateSpeed = 2.0f;
+	private float boardRotateSpeed = 1.0f;
 	
 	private boolean shiftView = false;
 	
@@ -78,6 +78,7 @@ public class TangibleGame extends PApplet{
 	
 	private ImageProcessing imageProcessing;
 	private boolean quadDetected;
+	private final static boolean MILESTONE_TEST_MOVIE = true;
 	
 	PImage backgroundImage;
 	Minim audioContext;
@@ -89,7 +90,7 @@ public class TangibleGame extends PApplet{
 		audioSetup();
 		graphicSetup();
 		setupTimer();
-		imageProcessing = new ImageProcessing(this);
+		imageProcessing = new ImageProcessing(this, MILESTONE_TEST_MOVIE);
 		imageProcessing.setup();
 	}
 	
@@ -104,8 +105,9 @@ public class TangibleGame extends PApplet{
 	
 	public void audioSetup(){
 		audioContext = new Minim(this);
-		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
-		backgroundPlayer.loop();
+		//TODO uncomment this and comment every sound bonus
+		//backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
+		//backgroundPlayer.loop();
 	}
 	
 	public void setupTimer(){
@@ -157,12 +159,15 @@ public class TangibleGame extends PApplet{
 			ball.show();
 		}
 		else{
+			fill(255);
 			rect(-PLATE_WIDTH/2, -PLATE_DEPTH/2, PLATE_WIDTH, PLATE_DEPTH);
+			fill(150);
 			ball.shiftModeShow();
-			for(PVector cylinderPosition: bowlingPins){
+			noFill();
+			for(PVector pin: bowlingPins){
 				//showing pins positions with circles on the shiftMode plate
 				stroke(0);
-				ellipse(cylinderPosition.x, cylinderPosition.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
+				ellipse(pin.x, pin.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
 				noStroke();
 			}
 		}
@@ -334,16 +339,22 @@ public class TangibleGame extends PApplet{
 	}
 	
 	public void updateAnglesFromBoard(){
-		float rx = imageProcessing.getRotations().x/boardRotateSpeed;
-		float ry = imageProcessing.getRotations().y/boardRotateSpeed;
-		rotateX = rx;
-		rotateZ = -ry;
-		rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
+		float rx = imageProcessing.getRotations().x/2;
+		float ry = imageProcessing.getRotations().y/2;
+		if(MILESTONE_TEST_MOVIE){
+			rotateX = -rx - (PI/2);
+			rotateX = constrain(rotateX, MIN_ANGLE - PI/2, MAX_ANGLE - PI/2);
+			//rotateX = -(PI/2.0f);
+		}else{
+			rotateX = rx;
+			rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
+		}
+		//rotateZ = -ry;
 		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
 		
-		/*float rz = imageProcessing.getRotations().z/boardRotateSpeed;
-		rotateY = -rz;
-		rotateY = constrain(rotateY, MIN_ANGLE, MAX_ANGLE);*/
+		//float rz = imageProcessing.getRotations().z;
+		//rotateY = -rz;
+		//rotateY = constrain(rotateY, MIN_ANGLE, MAX_ANGLE);
 	}
 	
 	

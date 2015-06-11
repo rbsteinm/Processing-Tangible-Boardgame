@@ -115,7 +115,6 @@ public class DigitalGame extends PApplet{
 	public void audioSetup(){
 		audioContext = new Minim(this);
 		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
-		backgroundPlayer.setGain(0.05f);
 		backgroundPlayer.loop();
 	}
 	
@@ -142,8 +141,8 @@ public class DigitalGame extends PApplet{
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
 			stroke(0);
-			for(PVector cylinderPosition: bowlingPins){
-				displayBowlingPin(cylinderPosition.x, cylinderPosition.y);
+			for(PVector pin: bowlingPins){
+				displayBowlingPin(pin.x, pin.y);
 				//cylinder.show(cylinderPosition.x, cylinderPosition.y);
 			}
 			noStroke();
@@ -152,10 +151,10 @@ public class DigitalGame extends PApplet{
 		else{
 			rect(-PLATE_WIDTH/2, -PLATE_DEPTH/2, PLATE_WIDTH, PLATE_DEPTH);
 			ball.shiftModeShow();
-			for(PVector cylinderPosition: bowlingPins){
+			for(PVector pin: bowlingPins){
 				//showing pins positions with circles on the shiftMode plate
 				stroke(0);
-				ellipse(cylinderPosition.x, cylinderPosition.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
+				ellipse(pin.x, pin.y, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2);
 				noStroke();
 			}
 		}

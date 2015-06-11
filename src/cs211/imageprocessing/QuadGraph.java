@@ -72,7 +72,7 @@ public class QuadGraph {
 			for (int i = 1; i < cy.length; i++) {
 				s += "," + cy[i];
 			}
-			System.out.println(s);
+			//System.out.println(s);
 		}
 		return cycles;
 	}
@@ -218,7 +218,7 @@ public class QuadGraph {
 				|| (i1 < 0 && i2 < 0 && i3 < 0 && i4 < 0))
 			return true;
 		else
-			System.out.println("Eliminating non-convex quad");
+			//System.out.println("Eliminating non-convex quad");
 		return false;
 
 	}
@@ -245,9 +245,10 @@ public class QuadGraph {
 
 		boolean valid = (area < max_area && area > min_area);
 
-		System.out.println("quad area: " + area);
-		if (!valid)
-			System.out.println("Area out of range.");
+		//System.out.println("quad area: " + area);
+		if (!valid){
+			//System.out.println("Area out of range.");
+		}
 
 		return valid;
 	}
@@ -281,7 +282,7 @@ public class QuadGraph {
 			double angle2 = Math.round(Math.acos(cos2)*360.0f/(Math.PI*2));
 			double angle3 = Math.round(Math.acos(cos3)*360.0f/(Math.PI*2));
 			double angle4 = Math.round(Math.acos(cos4)*360.0f/(Math.PI*2));
-			System.out.println("Flat quad. Angles: (" + angle1 + ", " + angle2 + ", " + angle3 + ", " + angle4 + ")");
+			//System.out.println("Flat quad. Angles: (" + angle1 + ", " + angle2 + ", " + angle3 + ", " + angle4 + ")");
 			return false;
 		}
 	}
