@@ -87,8 +87,9 @@ public class TangibleGame extends PApplet{
 	Minim audioContext;
 	AudioPlayer backgroundPlayer;
 	
-	public TangibleGame(boolean MilestoneTest){
+	public TangibleGame(boolean MilestoneTest, ArrayList<PVector> bowlingPins){
 		this.MILESTONE_TEST_MOVIE = MilestoneTest;
+		this.bowlingPins = bowlingPins;
 	}
 	
 	public TangibleGame(){}

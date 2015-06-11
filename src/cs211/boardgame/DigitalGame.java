@@ -81,6 +81,12 @@ public class DigitalGame extends PApplet{
 	Minim audioContext;
 	AudioPlayer backgroundPlayer;
 	
+	public DigitalGame(ArrayList<PVector> bowlingPins){
+		this.bowlingPins = bowlingPins;
+	}
+	
+	public DigitalGame(){}
+	
 	public void setup(){
 		size(1400, 800, P3D);
 		audioSetup();
