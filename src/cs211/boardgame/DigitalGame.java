@@ -288,8 +288,6 @@ public class DigitalGame extends PApplet{
 			}
 			if(keyCode == SHIFT){
 				shiftView = true;
-				//TODO find a way to pause the timer when in shiftMode
-				//timer.cancel();
 			}
 		}
 	}

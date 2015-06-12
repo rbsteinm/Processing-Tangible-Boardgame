@@ -17,13 +17,10 @@ import ddf.minim.Minim;
  * In "Milestone IV test mode", the board is rotated of -PI/2 around the X-axis to make 
  * the comparison between the real board and game board easier. The ball is also frozen in the bottom-right corner.
  *
+ * Background music and hit sound animation were added, but commented as asked
  */
 @SuppressWarnings("serial")
 public class TangibleGame extends PApplet{
-	
-	//TODO LA VITESSE N'EST PAS NULLE LORSQUE LA BALLE EST IMMOBILE, CE QUI
-	//POSE PROBLEME LORS DU CALCUL DU SCORE. A REGLER RAPIDEMENT
-	//Solution: poser un treshhold t: si v < t => v = 0
 	
 	private final static float MIN_ANGLE = -(PI/3);
 	private final static float MAX_ANGLE = (PI/3);
@@ -84,8 +81,8 @@ public class TangibleGame extends PApplet{
 	private boolean MILESTONE_TEST_MOVIE = true;
 	
 	PImage backgroundImage;
-	Minim audioContext;
-	AudioPlayer backgroundPlayer;
+	//Minim audioContext;
+	//AudioPlayer backgroundPlayer;
 	
 	public TangibleGame(boolean MilestoneTest, ArrayList<PVector> bowlingPins){
 		this.MILESTONE_TEST_MOVIE = MilestoneTest;
@@ -97,7 +94,7 @@ public class TangibleGame extends PApplet{
 	public void setup(){
 		size(1500, 800, P3D);
 		size(1400, 800, P3D);
-		audioSetup();
+		//audioSetup();
 		graphicSetup();
 		setupTimer();
 		imageProcessing = new ImageProcessing(this, MILESTONE_TEST_MOVIE);
@@ -113,12 +110,11 @@ public class TangibleGame extends PApplet{
 		scrollbar = new HScrollbar(3*DATA_SURFACE_MARGIN + TOP_VIEW_PLATE_WIDTH + SCOREBOARD_WIDTH, height - DATA_SURFACE_MARGIN - SCROLLBAR_HEIGHT, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT);
 	}
 	
-	public void audioSetup(){
+	/*public void audioSetup(){
 		audioContext = new Minim(this);
-		//TODO uncomment this and comment every sound bonus
-		//backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
-		//backgroundPlayer.loop();
-	}
+		backgroundPlayer = audioContext.loadFile("ScottJoplinEuphonicSounds.mp3");
+		backgroundPlayer.loop();
+	}*/
 	
 	public void setupTimer(){
 		task = new TimerTask()
@@ -305,8 +301,6 @@ public class TangibleGame extends PApplet{
 			}
 			if(keyCode == SHIFT){
 				shiftView = true;
-				//TODO find a way to pause the timer when in shiftMode
-				//timer.cancel();
 			}
 		}
 	}
@@ -380,9 +374,8 @@ public class TangibleGame extends PApplet{
 	 */
 	public void removeHitPins(){
 		for(int i: pinsToBeRemoved){
-			//TODO creer une pin clignotante qui disparait au bout de 2 secondes aux coordonnes de la removedPin
 			bowlingPins.remove(i);
-			audioContext.loadFile("bowlingStrike.mp3").play();
+			//audioContext.loadFile("bowlingStrike.mp3").play();
 		}
 	}
 	

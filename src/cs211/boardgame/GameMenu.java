@@ -1,7 +1,6 @@
 package cs211.boardgame;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -23,7 +22,6 @@ public class GameMenu extends PApplet {
 	private boolean noPinAlert = false;
 	
 	private String[] buttonNames = new String[]{"DIGITAL GAME", "TANGIBLE GAME", "MILESTONE IV TEST"};
-	private int nButtons = buttonNames.length;
 	private String instructions = 
 			"* tilt the board in order to hit all the pins with the ball!\n\n" +
 			"* hold SHIFT to add more pins during the game\n\n" +
@@ -69,20 +67,20 @@ public class GameMenu extends PApplet {
 				game.init();
 				add(game);
 				this.stop();
-				game.start();
+				this.destroy();
 			}
 			else if(mouseOverButton(1)){
 				PApplet game = new TangibleGame(false, bowlingPins);
 				game.init();
 				add(game);
 				this.stop();
-				game.start();
+				this.destroy();
 			} else if(mouseOverButton(2)){
 				PApplet game = new TangibleGame(true, bowlingPins);
 				game.init();
 				add(game);
 				this.stop();
-				game.start();
+				this.destroy();
 			}
 		} else{
 			noPinAlert = true;

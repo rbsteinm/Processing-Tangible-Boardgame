@@ -612,7 +612,6 @@ public class ImageProcessing{
 		List<PVector> quadLines = new ArrayList<PVector>();
 		if(quadCycles.size() > 0){
 			//arbitrary selecting the first quad of quadCycles
-			//TODO find a way to select the most accurate quad
 			int[] quad = quadCycles.get(0);
 			PVector l1 = lines.get(quad[0]);
 			PVector l2 = lines.get(quad[1]);
