@@ -23,11 +23,12 @@ public class GameMenu extends PApplet {
 	
 	private String[] buttonNames = new String[]{"DIGITAL GAME", "TANGIBLE GAME", "MILESTONE IV TEST"};
 	private String instructions = 
-			"* tilt the board in order to hit all the pins with the ball!\n\n" +
+			"* tilt the board in order to hit all the pins with the ball !\n\n" +
 			"* hold SHIFT to add more pins during the game\n\n" +
-			"* the game finishes when either you reach 1000 points\n\n" +
+			"* in digital mode, scroll the mouse wheel to change \n  rotation speed\n\n" +
+			"* the game finishes when either you reach 1000 points\n" +
 			"  or there's no pins left on the board\n\n" +
-			"* press ESC to come back to main menu";
+			"* press ESC to quit";
 	
 
 	public void setup() {
@@ -61,28 +62,26 @@ public class GameMenu extends PApplet {
 	
 	public void mousePressed(){
 		createPin(mouseX-width/2, mouseY-height/2);
-		if(bowlingPins.size() > 0){
-			if(mouseOverButton(0)){
-				PApplet game = new DigitalGame(bowlingPins);
+			if(mouseOverButton(0) && bowlingPins.size() > 0){
+				PApplet game = new Game(false, false, bowlingPins);
 				game.init();
 				add(game);
 				this.stop();
 				this.destroy();
 			}
-			else if(mouseOverButton(1)){
-				PApplet game = new TangibleGame(false, bowlingPins);
+			else if(mouseOverButton(1) && bowlingPins.size() > 0){
+				PApplet game = new Game(true, false, bowlingPins);
 				game.init();
 				add(game);
 				this.stop();
 				this.destroy();
 			} else if(mouseOverButton(2)){
-				PApplet game = new TangibleGame(true, bowlingPins);
+				PApplet game = new Game(true, true, bowlingPins);
 				game.init();
 				add(game);
 				this.stop();
 				this.destroy();
-			}
-		} else{
+			} else{
 			noPinAlert = true;
 		}
 	}

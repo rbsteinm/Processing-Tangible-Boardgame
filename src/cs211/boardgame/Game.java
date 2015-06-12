@@ -6,10 +6,9 @@ import processing.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cs211.boardgame.DigitalGame.HScrollbar;
 import cs211.imageprocessing.ImageProcessing;
-import ddf.minim.AudioPlayer;
-import ddf.minim.Minim;
+//import ddf.minim.AudioPlayer;
+//import ddf.minim.Minim;
 
 /**
  * @author rbsteinm
@@ -20,13 +19,15 @@ import ddf.minim.Minim;
  * Background music and hit sound animation were added, but commented as asked
  */
 @SuppressWarnings("serial")
-public class TangibleGame extends PApplet{
+public class Game extends PApplet{
 	
+	private final static int MIN_WHEEL_VALUE = 0;
+	private final static int MAX_WHEEL_VALUE = 100;
 	private final static float MIN_ANGLE = -(PI/3);
 	private final static float MAX_ANGLE = (PI/3);
 	private final static float SPHERE_RADIUS = 10.0f;
-	private final static float PLATE_WIDTH = 350.0f;
-	private final static float PLATE_DEPTH = 350.0f;
+	private final static float PLATE_WIDTH = 450.0f;
+	private final static float PLATE_DEPTH = 450.0f;
 	private final static float PLATE_HEIGHT = 20.0f;
 	private final static float CYLINDER_RADIUS = 15.0f;
 	private final static int DATA_SURFACE_HEIGHT = 140;
@@ -64,8 +65,10 @@ public class TangibleGame extends PApplet{
 	private float rotateX = 0.0f;
 	private float rotateY = 0.0f;
 	private float rotateZ = 0.0f;
+	private float rotateSpeedXZ = 350.0f;
 	private float rotateSpeedY = PI/6;
 	private float boardRotateSpeed = 1.0f;
+	private float wheelValue = 50.0f;
 	
 	private boolean shiftView = false;
 	
@@ -78,18 +81,20 @@ public class TangibleGame extends PApplet{
 	
 	private ImageProcessing imageProcessing;
 	private boolean quadDetected;
-	private boolean MILESTONE_TEST_MOVIE = true;
+	private boolean MILESTONE_TEST_MOVIE = false;
+	private boolean TANGIBLE = false;
 	
 	PImage backgroundImage;
 	//Minim audioContext;
 	//AudioPlayer backgroundPlayer;
 	
-	public TangibleGame(boolean MilestoneTest, ArrayList<PVector> bowlingPins){
+	public Game(boolean tangible, boolean MilestoneTest, ArrayList<PVector> bowlingPins){
+		this.TANGIBLE = tangible;
 		this.MILESTONE_TEST_MOVIE = MilestoneTest;
 		this.bowlingPins = bowlingPins;
 	}
 	
-	public TangibleGame(){}
+	public Game(){}
 	
 	public void setup(){
 		size(1500, 800, P3D);
@@ -97,8 +102,10 @@ public class TangibleGame extends PApplet{
 		//audioSetup();
 		graphicSetup();
 		setupTimer();
-		imageProcessing = new ImageProcessing(this, MILESTONE_TEST_MOVIE);
-		imageProcessing.setup();
+		if(TANGIBLE){
+			imageProcessing = new ImageProcessing(this, MILESTONE_TEST_MOVIE);
+			imageProcessing.setup();
+		}
 	}
 	
 	public void graphicSetup(){
@@ -138,8 +145,10 @@ public class TangibleGame extends PApplet{
 		drawBottomSurface();
 		scrollbar.update();
 		scrollbar.display();
-		quadDetected = imageProcessing.draw();
-		updateAnglesFromBoard();
+		if(TANGIBLE){
+			quadDetected = imageProcessing.draw();
+			updateAnglesFromBoard();
+		}
 	}
 	
 	public void drawGame(){
@@ -149,11 +158,13 @@ public class TangibleGame extends PApplet{
 			rotateX(rotateX);
 			rotateY(rotateY);
 			rotateZ(rotateZ);
-			if(quadDetected){
-				fill(0, 255, 0);
-			}
-			else{
-				fill(255, 0, 0);
+			if(TANGIBLE){
+				if(quadDetected){
+					fill(0, 255, 0);
+				}
+				else{
+					fill(255, 0, 0);
+				}
 			}
 			box(PLATE_WIDTH, PLATE_HEIGHT, PLATE_DEPTH);
 			noFill();
@@ -306,7 +317,9 @@ public class TangibleGame extends PApplet{
 	}
 	
 	public void keyReleased(){
-		shiftView = false;
+		if(keyCode == SHIFT){
+			shiftView = false;
+		}
 	}
 	
 	//clicking on the plate in shift mode draws a cylinder on the clicked position
@@ -317,6 +330,32 @@ public class TangibleGame extends PApplet{
 			createPin(x, y);
 		}
 	}
+	
+	// updates the inclinaison of the plate when we drag it with the mouse
+		// plate does not move if mouse is dragged on data surface
+		public void mouseDragged(){
+			if(!shiftView && mouseY < height - DATA_SURFACE_HEIGHT && !TANGIBLE){
+				rotateX += (pmouseY - mouseY)/rotateSpeedXZ;
+				rotateZ += (mouseX - pmouseX)/rotateSpeedXZ;
+				rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
+				rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
+				
+			}
+		}
+		
+		//Scolling the mouse wheel changes the rotation speed
+		public void mouseWheel(MouseEvent event){
+			if(!shiftView && !TANGIBLE){
+				//wheelValue is contained between 0 and 100
+				wheelValue += event.getCount();
+				wheelValue = constrain(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE);
+				
+				//wheelValue is then mapped to corresponding X, Y and Z rotation speeds
+				rotateSpeedY = map(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE, 0.01f, PI/3);
+				rotateSpeedXZ = map(wheelValue, MIN_WHEEL_VALUE, MAX_WHEEL_VALUE, 600.0f, 100.0f);
+			}
+		}
+		
 	
 	/**
 	 * @param x
@@ -385,7 +424,7 @@ public class TangibleGame extends PApplet{
 	 *
 	 */
 	public class Mover {
-		private final static float GRAVITY_CONSTANT = 2.5f;
+		private float GRAVITY_CONSTANT;
 		private final static float NORMAL_FORCE = 1.0f;
 		private final static float MU = 0.2f;
 		private final static float FRICTION_MAGNITUDE = NORMAL_FORCE * MU;
@@ -399,6 +438,12 @@ public class TangibleGame extends PApplet{
 			velocity = new PVector(0, 0, 0);
 			gravity = new PVector(0, 0, 0);
 			friction = new PVector(0, 0, 0);
+			if(TANGIBLE){
+				GRAVITY_CONSTANT = 2.5f;
+			}
+			else{
+				GRAVITY_CONSTANT = 0.5f;
+			}
 		}
 
 		/**
@@ -471,7 +516,7 @@ public class TangibleGame extends PApplet{
 		 * displays the sphere on the screen
 		 */
 		private void display() {
-			if(MILESTONE_TEST_MOVIE){
+			if(MILESTONE_TEST_MOVIE && TANGIBLE){
 				translate(PLATE_WIDTH/2, location.y, PLATE_DEPTH/2);
 			} else{
 				translate(location.x, location.y, location.z);
