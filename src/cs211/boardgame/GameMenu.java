@@ -26,8 +26,6 @@ public class GameMenu extends PApplet {
 			"* tilt the board in order to hit all the pins with the ball !\n\n" +
 			"* hold SHIFT to add more pins during the game\n\n" +
 			"* in digital mode, scroll the mouse wheel to change \n  rotation speed\n\n" +
-			"* the game finishes when either you reach 1000 points\n" +
-			"  or there's no pins left on the board\n\n" +
 			"* press ESC to quit";
 	
 
@@ -81,7 +79,7 @@ public class GameMenu extends PApplet {
 				add(game);
 				this.stop();
 				this.destroy();
-			} else{
+			} else if(mouseOverButton(0) || mouseOverButton(1)){
 			noPinAlert = true;
 		}
 	}

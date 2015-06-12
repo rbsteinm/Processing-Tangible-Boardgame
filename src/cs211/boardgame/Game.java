@@ -105,7 +105,6 @@ public class Game extends PApplet{
 	
 	public void setup(){
 		size(1500, 800, P3D);
-		size(1400, 800, P3D);
 		//audioSetup();
 		graphicSetup();
 		setupTimer();
