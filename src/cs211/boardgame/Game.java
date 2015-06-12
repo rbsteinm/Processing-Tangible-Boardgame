@@ -12,12 +12,20 @@ import cs211.imageprocessing.ImageProcessing;
 
 /**
  * @author rbsteinm
- * -----> README <-----
+ * 
+ * 										-----> README <-----
  * In "Milestone IV test mode", the board is rotated of -PI/2 around the X-axis to make 
  * the comparison between the real board and game board easier. The ball is also frozen in the bottom-right corner.
  *
  * Background music and hit sound animation were added, but commented as asked
+ * 
+ * A menu was added to select gaming mode (Tangible/Digital) and display some instuctions.
+ * 
+ * optionnal part of week 10 (hough pre-computations) was accomplished.
+ * See detectLines method in ImageProcessing.java
  */
+
+
 @SuppressWarnings("serial")
 public class Game extends PApplet{
 	
@@ -67,7 +75,6 @@ public class Game extends PApplet{
 	private float rotateZ = 0.0f;
 	private float rotateSpeedXZ = 350.0f;
 	private float rotateSpeedY = PI/6;
-	private float boardRotateSpeed = 1.0f;
 	private float wheelValue = 50.0f;
 	
 	private boolean shiftView = false;

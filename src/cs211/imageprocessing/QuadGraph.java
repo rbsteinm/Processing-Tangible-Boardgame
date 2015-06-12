@@ -68,9 +68,9 @@ public class QuadGraph {
 			}
 		}
 		for (int[] cy : cycles) {
-			String s = "" + cy[0];
+			//String s = "" + cy[0];
 			for (int i = 1; i < cy.length; i++) {
-				s += "," + cy[i];
+				//s += "," + cy[i];
 			}
 			//System.out.println(s);
 		}
@@ -277,12 +277,6 @@ public class QuadGraph {
 				&& cos4 < min_cos)
 			return true;
 		else {
-			//TODO remove this
-			double angle1 = Math.round(Math.acos(cos1)*360.0f/(Math.PI*2));
-			double angle2 = Math.round(Math.acos(cos2)*360.0f/(Math.PI*2));
-			double angle3 = Math.round(Math.acos(cos3)*360.0f/(Math.PI*2));
-			double angle4 = Math.round(Math.acos(cos4)*360.0f/(Math.PI*2));
-			//System.out.println("Flat quad. Angles: (" + angle1 + ", " + angle2 + ", " + angle3 + ", " + angle4 + ")");
 			return false;
 		}
 	}

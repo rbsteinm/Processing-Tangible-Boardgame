@@ -20,8 +20,6 @@ import processing.video.Movie;
  */
 public class ImageProcessing{
 	private PApplet myApp;
-	private int width;
-	private int height;
 	
 	private final int WHITE = 255;
 	private final int BLACK = 0;
@@ -45,14 +43,10 @@ public class ImageProcessing{
 	private PVector rotations = new PVector(0, 0, 0);
 	
 	QuadGraph quadGraph = new QuadGraph();
-	private int edgeDetectionIndex = 0;
-	private final static int EDGE_DETECTION_RATE = 1;
 	
 	
 	public ImageProcessing(PApplet myPApplet, boolean testMovie){
 		this.myApp = myPApplet;
-		this.width = myPApplet.width;
-		this.height = myPApplet.height;
 		this.TESTMOVIE = testMovie;
 	}
 	
@@ -97,12 +91,8 @@ public class ImageProcessing{
 		}
 		img.resize(img.width/2, img.height/2);
 		myApp.image(img, 0, 0);
-		//TODO fix edge detection index lag issues
-		if(edgeDetectionIndex == 0){
-			edgeImg = getEdgeImage(img);
-			lines = detectLines(edgeImg, 6);
-		}
-		edgeDetectionIndex = (edgeDetectionIndex + 1) % EDGE_DETECTION_RATE;
+		edgeImg = getEdgeImage(img);
+		lines = detectLines(edgeImg, 6);
 		
 		quadGraph.build(lines, img.width, img.height);
 		quadCycles = filterQuads(quadGraph.findCycles());
@@ -134,10 +124,6 @@ public class ImageProcessing{
 	 * @return a new image with highlighted board edges 
 	 */
 	public PImage getEdgeImage(PImage img){
-		//PImage resultImg;
-		//resultImg = hueFilter(img, 90, 140);
-		//resultImg = brightnessFilter(resultImg, 0, 200);
-		//resultImg = saturationFilter(resultImg, 100, 255);
 		if(TESTMOVIE){
 			HBSFilter(img, 90, 130, 60, 190, 100, 255);
 		}else{
@@ -650,7 +636,7 @@ public class ImageProcessing{
 				remainingQuads.add(quad);
 			}
 		}
-		//System.out.println((quads.size() - remainingQuads.size()) + " quads filtered; " + remainingQuads.size() + " remaining.");
+		System.out.println((quads.size() - remainingQuads.size()) + " quads filtered; " + remainingQuads.size() + " remaining.");
 		return remainingQuads;
 	}
 	
@@ -675,7 +661,6 @@ public class ImageProcessing{
 					Math.min(255, random.nextInt(300)), 50));
 			myApp.quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
 		}
-		//System.out.println(quads.size() + " quad(s) displayed");
 	}
 	
 	/**

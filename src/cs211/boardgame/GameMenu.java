@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 
+@SuppressWarnings("serial")
 public class GameMenu extends PApplet {
 	private final static float PLATE_WIDTH = 450.0f;
 	private final static float PLATE_DEPTH = 450.0f;
-	private final static float PLATE_HEIGHT = 20.0f;
 	private final static float CYLINDER_RADIUS = 13.0f;
 	private final static float SPHERE_RADIUS = 10.0f;
 	private final static int BUTTON_WIDTH = 300;
