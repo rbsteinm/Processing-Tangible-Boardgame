@@ -14,8 +14,9 @@ import cs211.imageprocessing.ImageProcessing;
  * @author rbsteinm
  * 
  * 										-----> README <-----
- * In "Milestone IV test mode", the board is rotated of -PI/2 around the X-axis to make 
- * the comparison between the real board and game board easier. The ball is also frozen in the bottom-right corner.
+ * In "Milestone IV test mode", the board can be rotated of -PI/2 around the X-axis to make 
+ * the comparison between the real board and game board easier. See updateAnglesFromBoard and uncomment
+ * concerned lines to do it.
  *
  * Background music and hit sound animation were added, but commented as asked
  * 
@@ -23,6 +24,8 @@ import cs211.imageprocessing.ImageProcessing;
  * 
  * optionnal part of week 10 (hough pre-computations) was accomplished.
  * See detectLines method in ImageProcessing.java
+ * 
+ * Blob detection is not working yet, please do not take it into account for the correction :)
  */
 
 
@@ -390,13 +393,14 @@ public class Game extends PApplet{
 	public void updateAnglesFromBoard(){
 		float rx = imageProcessing.getRotations().x/2;
 		float ry = imageProcessing.getRotations().y/2;
-		if(MILESTONE_TEST_MOVIE){
+		//board rotated in MILESTONE_MOVIE mode for better comparison with the video
+		/*if(MILESTONE_TEST_MOVIE){
 			rotateX = -rx - (PI/2);
 			rotateX = constrain(rotateX, MIN_ANGLE - PI/2, MAX_ANGLE - PI/2);
-		}else{
+		}else{*/
 			rotateX = rx;
 			rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
-		}
+		//}
 		rotateZ = -ry;
 		rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
 		
@@ -522,11 +526,7 @@ public class Game extends PApplet{
 		 * displays the sphere on the screen
 		 */
 		private void display() {
-			if(MILESTONE_TEST_MOVIE && TANGIBLE){
-				translate(PLATE_WIDTH/2, location.y, PLATE_DEPTH/2);
-			} else{
-				translate(location.x, location.y, location.z);
-			}
+			translate(location.x, location.y, location.z);
 			fill(180, 180, 180);
 			sphere(SPHERE_RADIUS);
 			noFill();
