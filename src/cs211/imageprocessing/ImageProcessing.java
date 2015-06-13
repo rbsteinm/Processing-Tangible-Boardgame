@@ -31,6 +31,7 @@ public class ImageProcessing{
 	private static final float DISCRETIZATION_STEPS_R = 2.5f;
 	
 	private PImage img = new PImage(640, 480);
+	private PImage img2;
 	private PImage edgeImg;
 	private Capture cam;
 	private Movie testMovie;
@@ -90,7 +91,13 @@ public class ImageProcessing{
 			img = cam.get();
 		}
 		img.resize(img.width/2, img.height/2);
-		myApp.image(img, 0, 0);
+		try {
+			img2 = (PImage)(img.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		myApp.image(img2, 0, 0);
 		edgeImg = getEdgeImage(img);
 		lines = detectLines(edgeImg, 6);
 		
