@@ -14,11 +14,16 @@ import cs211.imageprocessing.ImageProcessing;
  * @author rbsteinm
  * 
  * 										-----> README <-----
+ * launch GameMenu.java and follow the instructions. Everything can be done from this menu,
+ * including tangible game with the given video.
+ *  
  * In "Milestone IV test mode", the board can be rotated of -PI/2 around the X-axis to make 
  * the comparison between the real board and game board easier. See updateAnglesFromBoard and uncomment
  * concerned lines to do it.
  *
- * Background music and hit sound animation were added, but commented as asked
+ * Background music and hit sound animation were added, but commented as asked.
+ * If you want to use it, import ddf.minim.* and uncomment concerned lines 
+ * (declarations, setup(), audioSetup(), removeHitPins() )
  * 
  * A menu was added to select gaming mode (Tangible/Digital) and display some instuctions.
  * 
