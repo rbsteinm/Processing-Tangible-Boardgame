@@ -1,8 +1,7 @@
 # Processing Boardgame
 ##### Author: Raphaël Steinmann
 
-![alt text](./captures/Capture.PNG "")
-![alt text](./captures/Capture2.PNG "")
+![alt text](./captures/Capture.PNG =100x) ![alt text](./captures/Capture2.PNG =100x)
 
 This game was coded in the scope of the course "[Introduction to Visual Computing](http://edu.epfl.ch/coursebook/en/introduction-to-visual-computing-CS-211?cb_cycle=bama_cyclemaster&cb_section=sv_b)" (prof. Pierre Dillenbourg, CHILI Lab, EPFL). This is a simple tilt board game where the user accumulates points by hitting the pins with the ball.
 
