@@ -21,7 +21,7 @@ public class GameMenu extends PApplet {
 	private ArrayList<PVector> bowlingPins = new ArrayList<PVector>();
 	private boolean noPinAlert = false;
 	
-	private String[] buttonNames = new String[]{"DIGITAL GAME", "TANGIBLE GAME", "MILESTONE IV TEST"};
+	private String[] buttonNames = new String[]{"DIGITAL GAME", "TANGIBLE GAME", "TANGIBLE DEMO"};
 	private String instructions = 
 			"* tilt the board in order to hit all the pins with the ball !\n\n" +
 			"* hold SHIFT to add more pins during the game\n\n" +

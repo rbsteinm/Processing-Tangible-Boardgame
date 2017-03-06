@@ -97,7 +97,7 @@ public class Game extends PApplet{
 	private ImageProcessing imageProcessing;
 	private boolean quadDetected;
 	private boolean MILESTONE_TEST_MOVIE = false;
-	private boolean TANGIBLE = false;
+	private boolean TANGIBLE = true;
 	
 	PImage backgroundImage;
 	//Minim audioContext;
@@ -349,7 +349,7 @@ public class Game extends PApplet{
 		// plate does not move if mouse is dragged on data surface
 		public void mouseDragged(){
 			if(!shiftView && mouseY < height - DATA_SURFACE_HEIGHT && !TANGIBLE){
-				rotateX += (pmouseY - mouseY)/rotateSpeedXZ;
+				rotateX += (pmouseY - mouseY)/rotateSpeedXZ;	
 				rotateZ += (mouseX - pmouseX)/rotateSpeedXZ;
 				rotateX = constrain(rotateX, MIN_ANGLE, MAX_ANGLE);
 				rotateZ = constrain(rotateZ, MIN_ANGLE, MAX_ANGLE);
